@@ -35,24 +35,24 @@ Criar um PDV moderno, modular, escalável e preparado para o futuro, com:
 ```
 pdv-ux-driven/
 │
-├── frontend/
-│   └── app/
-│       ├── ui/
-│       │   ├── index.html
-│       │   ├── ui.js
-│       │   └── styles/
-│       │       └── main.css
-│       │
-│       ├── application/
-│       │   ├── SaleService.js
-│       │   ├── ProductService.js
-│       │   ├── CustomerService.js
-│       │   ├── OperatorService.js
-│       │   ├── DiscountService.js
-│       │   └── PrinterService.js
-│       │
-│       └── backend/
-│           └── api.js
+├── app/
+│   ├── ui/
+│   │   ├── index.html
+│   │   ├── scripts/
+│   │   │   └── ui.js
+│   │   └── styles/
+│   │       └── main.css
+│   │
+│   ├── application/
+│   │   ├── SaleService.js
+│   │   ├── ProductService.js
+│   │   ├── CustomerService.js
+│   │   ├── OperatorService.js
+│   │   ├── DiscountService.js
+│   │   └── PrinterService.js
+│   │
+│   └── backend/
+│       └── api.js
 │
 └── backend/
     ├── src/
@@ -65,6 +65,7 @@ pdv-ux-driven/
     │
     ├── server.js
     └── package.json
+
 
 ```
 
