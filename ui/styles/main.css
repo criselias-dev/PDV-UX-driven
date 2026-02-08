@@ -1,0 +1,495 @@
+/* ============================
+   BASE / ERGONOMIA
+============================ */
+:root {
+  --bg-main: #121212;
+  --bg-panel: #1b1b1b;
+  --bg-panel-soft: #222;
+  --text-main: #e0e0e0;
+  --text-soft: #b5b5b5;
+  --accent-blue: #4da3ff;
+  --accent-green: #4dff88;
+  --accent-warn: #ff6b6b;
+  --border-soft: #333;
+  --shadow-soft: 0 0 18px rgba(0, 0, 0, 0.6);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Modo alto contraste */
+body.high-contrast {
+  --bg-main: #000000;
+  --bg-panel: #101010;
+  --bg-panel-soft: #181818;
+  --text-main: #ffffff;
+  --text-soft: #e0e0e0;
+  --accent-blue: #7bb8ff;
+  --accent-green: #7dffb0;
+  --accent-warn: #ff8080;
+  --border-soft: #555;
+}
+
+/* Layout principal */
+#app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* ============================
+   TOPO
+============================ */
+#topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-panel);
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-soft);
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--accent-blue);
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+/* Status */
+#statusArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #444;
+  box-shadow: 0 0 6px transparent;
+}
+
+.status-idle {
+  background-color: #555;
+}
+
+.status-active {
+  background-color: var(--accent-green);
+  box-shadow: 0 0 10px var(--accent-green);
+}
+
+.status-error {
+  background-color: var(--accent-warn);
+  box-shadow: 0 0 10px var(--accent-warn);
+}
+
+.status-text {
+  font-size: 18px;
+  color: var(--text-soft);
+}
+
+/* ============================
+   SEÇÕES
+============================ */
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+section {
+  background-color: var(--bg-panel);
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-soft);
+}
+
+section h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: var(--accent-blue);
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Campos */
+label {
+  font-size: 18px;
+  color: var(--text-soft);
+}
+
+/* Inputs */
+input[type="text"] {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+  background-color: var(--bg-panel-soft);
+  color: var(--text-main);
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(77, 163, 255, 0.4);
+}
+
+/* ============================
+   CLIENTE — COMPACTO
+============================ */
+#clientSection {
+  padding-bottom: 8px;
+}
+
+.client-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* CPF */
+.cpf-box {
+  flex: 1;
+}
+
+.cpf-box input {
+  width: 75%;
+}
+
+/* BLOCO CENTRAL: Nome acima do fidelizado */
+.cliente-info-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;   /* ← empilha verticalmente */
+  align-items: center;      /* ← centraliza */
+  justify-content: center;
+}
+
+.client-name {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;       /* espaço entre nome e fidelizado */
+}
+
+/* FIDELIDADE */
+#fidelidadeStatus {
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.fidelidade-sim {
+  color: #4dff88;
+}
+
+.fidelidade-nao {
+  color: #ff6b6b;
+}
+
+/* OPÇÕES DO CPF */
+.cpf-options {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.checkbox-line {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 16px;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.small-btn {
+  padding: 4px 10px;
+  font-size: 18px;
+}
+
+/* ============================
+   BOTÕES
+============================ */
+button {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-blue);
+  background-color: transparent;
+  color: var(--accent-blue);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--accent-blue);
+  color: #000;
+  box-shadow: 0 0 10px rgba(77, 163, 255, 0.6);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Botão secundário */
+.secondary-btn {
+  border-color: var(--text-soft);
+  color: var(--text-soft);
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background-color: var(--text-soft);
+  color: #000;
+}
+
+/* Botão de alerta */
+.warn-btn {
+  border-color: var(--accent-warn);
+  color: var(--accent-warn);
+}
+
+.warn-btn:hover:not(:disabled) {
+  background-color: var(--accent-warn);
+  color: #000;
+}
+
+/* Controles */
+#controlsSection {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.controls-row.single-line {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+.controls-row.single-line button {
+  flex: 1;
+}
+
+/* ============================
+   PRODUTO — INPUT + FOTO + DESCRIÇÃO
+============================ */
+
+#productSection {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 12px;   /* GAP ENTRE PRODUTO E PRÓXIMA CAIXA */
+}
+
+.product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Caixa da esquerda (input + descrição) */
+.product-input-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-input-box input {
+  width: 60%;
+}
+
+/* Caixa da descrição */
+.product-description-box {
+  margin-top: 6px;
+  padding: 8px;
+  background-color: var(--bg-panel-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  min-height: 80px;
+}
+
+.product-description-box label {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+#productDescription {
+  margin: 4px 0 0;
+  font-size: 16px;
+  color: var(--text-main);
+}
+
+/* Caixa da direita (foto do produto) */
+.product-photo-box {
+  width: 180px;
+  height: 200px;
+  background-color: var(--bg-panel-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  margin-bottom: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-soft);
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* ============================
+   ITENS — 95% CENTRALIZADO + MARCA D’ÁGUA GRANDE
+============================ */
+#itemsContainer {
+  width: 95%;
+  margin: 4px auto 0;
+  min-height: 260px;
+  max-height: 260px;
+  overflow-y: auto;
+
+  background-color: var(--bg-panel-soft);
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  padding: 12px 14px;
+
+  position: relative;
+}
+
+/* Lista acima da imagem */
+#itemsList {
+  position: relative;
+  z-index: 2;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+#itemsList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px;
+}
+
+/* Destaque do último item */
+.item-highlight {
+  background-color: rgba(77, 163, 255, 0.15);
+  animation: highlightFade 0.6s ease-out;
+}
+
+@keyframes highlightFade {
+  from {
+    background-color: rgba(77, 163, 255, 0.35);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+/* Botão cancelar item */
+.cancel-btn {
+  background-color: var(--accent-warn);
+  border: none;
+  color: #000;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cancel-btn:hover {
+  background-color: #ff8a8a;
+}
+
+/* ============================
+   RESUMO — EMBAIXO
+============================ */
+#summarySection {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.summary-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 18px;
+  color: var(--text-soft);
+}
+
+.summary-value {
+  margin-top: 2px;
+  font-size: 17px;
+}
+
+.total-highlight {
+  font-size: 20px;
+  color: var(--accent-green);
+}
+
+/* ============================
+   RESPONSIVO
+============================ */
+@media (max-width: 720px) {
+  #topBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .client-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cpf-options {
+    align-items: flex-start;
+  }
+
+  .controls-row.single-line {
+    flex-wrap: wrap;
+  }
+
+  #itemsContainer {
+    width: 100%;
+  }
+
+  .summary-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

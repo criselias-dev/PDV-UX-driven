@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PDV — Mercado Pepinho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../ui/styles/main.css">
+</head>
+
+<body>
+
+  <div id="app">
+
+    <!-- TOPO -->
+    <header id="topBar">
+      <div>
+        <h1>PDV — Mercado Pepinho</h1>
+        <p class="subtitle">Fluxo de caixa pensado para 8h de uso real</p>
+      </div>
+
+      <div class="top-center">
+        <!-- GUIA: operador real virá do backend -->
+        <span class="operator-msg">Olá, sou o operador <strong>Copilot</strong></span>
+      </div>
+
+      <div class="top-right">
+        <span class="version-label">v2026.1.0</span>
+      </div>
+
+      <div id="statusArea">
+        <div id="statusIndicator" class="status-indicator status-idle"></div>
+        <div class="status-text">
+          <span id="statusLabel">Sem venda ativa</span><br>
+          <small>
+            ID da venda:
+            <span id="saleId" title="ID completo aparecerá aqui">—</span>
+          </small>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- CLIENTE -->
+      <section id="clientSection">
+        <h2>Cliente</h2>
+
+        <div class="client-row">
+
+          <div class="cpf-box">
+            <label for="cpfInput">CPF do Cliente</label>
+            <input type="text" id="cpfInput">
+          </div>
+
+          <div class="cliente-info-box">
+            <!-- GUIA: nome real virá do backend -->
+            <span class="client-name">
+              Olá <span id="clientName">Faní</span>
+            </span>
+
+            <!-- GUIA: fidelidade real virá do backend -->
+            <span id="fidelidadeStatus" class="fidelidade-nao">Cliente Não Fidelizado</span>
+          </div>
+
+          <div class="cpf-options">
+            <label class="checkbox-line">
+              <input type="checkbox" id="emitirNota">
+              CPF na Nota Paulista
+            </label>
+
+            <button id="btnClearCpf" class="secondary-btn small-btn">Limpar</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- CONTROLE DA VENDA -->
+      <section id="controlsSection">
+        <div class="section-header-row">
+          <h2>Controle da venda</h2>
+        </div>
+
+        <div class="controls-row single-line">
+          <button id="btnStart">Iniciar venda (F1)</button>
+          <button id="btnFinish">Finalizar venda (F2)</button>
+          <button id="btnCancelLast" class="warn-btn">Cancelar último item (F3)</button>
+          <button id="btnRepeatLast" class="secondary-btn">Repetir último item</button>
+          <button id="btnToggleContrast" class="secondary-btn">Modo alto contraste</button>
+          <button id="btnAlerta" class="warn-btn">Alerta (F12)</button>
+        </div>
+      </section>
+
+      <!-- PRODUTO -->
+      <section id="productSection">
+        <div class="section-header-row">
+          <h2>Produto</h2>
+        </div>
+
+        <div class="product-row">
+          <div class="product-input-box">
+
+            <label for="productInput">Código do produto</label>
+            <input type="text" id="productInput">
+
+            <div class="description-title">Descrição do produto</div>
+
+            <div class="product-description-box">
+              <!-- GUIA: descrição real virá do backend -->
+              <p id="productDescription"></p>
+            </div>
+
+          </div>
+
+          <div class="product-photo-box">
+            <!-- GUIA: foto real virá do backend -->
+            sem imagem
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ITENS -->
+      <section id="itemsSection">
+        <div class="section-header-row">
+          <h2>Itens da venda</h2>
+        </div>
+
+        <div id="itemsContainer">
+          <!-- lista começa vazia, preenchida pelo ui.js -->
+          <ul id="itemsList"></ul>
+        </div>
+
+        <p class="hint center">Clique no ❌ para cancelar 1 unidade do item.</p>
+      </section>
+
+      <!-- RESUMO -->
+      <section id="summarySection">
+        <div class="summary-box">
+
+          <div>
+            <span class="summary-label">Itens</span>
+            <div id="itemsCount" class="summary-value">0</div>
+          </div>
+
+          <div>
+            <span class="summary-label">Subtotal</span>
+            <div id="saleSubtotal" class="summary-value">R$ 0,00</div>
+          </div>
+
+          <div>
+            <span class="summary-label">Desconto</span>
+            <div id="saleDiscount" class="summary-value">R$ 0,00</div>
+          </div>
+
+          <div>
+            <span class="summary-label">Total</span>
+            <div id="saleTotal" class="summary-value total-highlight">R$ 0,00</div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- UI.js moderno -->
+  <script type="module" src="../ui/ui.js"></script>
+
+</body>
+
+</html>
