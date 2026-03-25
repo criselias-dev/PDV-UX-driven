@@ -181,15 +181,15 @@ input[type="text"]:focus {
 .cliente-info-box {
   flex: 1;
   display: flex;
-  flex-direction: column;   /* ← empilha verticalmente */
-  align-items: center;      /* ← centraliza */
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
 .client-name {
   font-size: 22px;
   font-weight: 600;
-  margin-bottom: 4px;       /* espaço entre nome e fidelizado */
+  margin-bottom: 4px;
 }
 
 /* FIDELIDADE */
@@ -293,6 +293,7 @@ button:disabled {
   flex-wrap: nowrap;
   gap: 8px;
 }
+
 .controls-row.single-line button {
   flex: 1;
 }
@@ -304,7 +305,7 @@ button:disabled {
 #productSection {
   padding-top: 8px;
   padding-bottom: 8px;
-  margin-bottom: 12px;   /* GAP ENTRE PRODUTO E PRÓXIMA CAIXA */
+  margin-bottom: 12px;
 }
 
 .product-row {
@@ -366,7 +367,7 @@ button:disabled {
 }
 
 /* ============================
-   ITENS — 95% CENTRALIZADO + MARCA D’ÁGUA GRANDE
+   ITENS — 95% CENTRALIZADO
 ============================ */
 #itemsContainer {
   width: 95%;
@@ -383,7 +384,7 @@ button:disabled {
   position: relative;
 }
 
-/* Lista acima da imagem */
+/* Lista */
 #itemsList {
   position: relative;
   z-index: 2;

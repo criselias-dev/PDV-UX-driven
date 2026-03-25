@@ -1,6 +1,6 @@
 // ======================================================
 //  API DO PDV — Comunicação com o backend real
-//  Local: PDV UPDATE/app/backend/api.js
+//  Local: PDV-UX-DRIVEN/app/backend/api.js
 // ======================================================
 
 const API_BASE = "http://127.0.0.1:3000/api";
