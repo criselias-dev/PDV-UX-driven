@@ -1,0 +1,17 @@
+{
+  "name": "pdv-ux-driven-backend",
+  "version": "1.0.0",
+  "description": "Backend do PDV UX Driven",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "uuid": "^13.0.0"
+  }
+}

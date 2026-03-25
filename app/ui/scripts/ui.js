@@ -1,27 +1,12 @@
 // ======================================================
 //  UI DO PDV — Controla toda a interface e interação
-//  Local: PDV UPDATE/app/ui/ui.js
+//  Local: PDV-UX-DRIVEN/app/ui/scripts/ui.js
 // ======================================================
 
 // -------------------------------
-// IMPORTAÇÃO DOS SERVICES
+// IMPORTAÇÃO DO API.JS
 // -------------------------------
-import SaleService from "../application/SaleService.js";
-import ProductService from "../application/ProductService.js";
-import CustomerService from "../application/CustomerService.js";
-import OperatorService from "../application/OperatorService.js";
-import DiscountService from "../application/DiscountService.js";
-import PrinterService from "../application/PrinterService.js";
-
-// -------------------------------
-// INSTÂNCIAS DOS SERVICES
-// -------------------------------
-const saleService = new SaleService();
-const productService = new ProductService();
-const customerService = new CustomerService();
-const operatorService = new OperatorService();
-const discountService = new DiscountService();
-const printerService = new PrinterService();
+import * as API from "../api.js";
 
 // -------------------------------
 // ELEMENTOS DA INTERFACE
@@ -51,6 +36,11 @@ const clientName = document.getElementById("clientName");
 const fidelidadeStatus = document.getElementById("fidelidadeStatus");
 
 // -------------------------------
+// VARIÁVEL DE ESTADO
+// -------------------------------
+let currentSale = null;
+
+// -------------------------------
 // STATUS VISUAL
 // -------------------------------
 function setStatusIdle() {
@@ -69,23 +59,35 @@ function setStatusError(msg) {
 }
 
 // -------------------------------
-// INICIAR VENDA
+// INICIAR VENDA — F1
 // -------------------------------
-btnStart.addEventListener("click", async () => {
+btnStart.addEventListener("click", async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   try {
-    const sale = await saleService.startSale();
-    saleIdLabel.textContent = sale.id;
+    // 1️⃣ iniciar venda no backend
+    currentSale = await API.startSale();
 
+    // 2️⃣ atualizar ID da venda na tela
+    saleIdLabel.textContent = currentSale.id;
+
+    // 3️⃣ habilitar/desabilitar controles
     btnStart.disabled = true;
     btnFinish.disabled = false;
     productInput.disabled = false;
     productInput.focus();
 
+    // 4️⃣ acender LED verde e status ativo
     setStatusActive();
-    clearSaleUI();
+
+    // 5️⃣ limpar somente lista de itens e descrição, mantendo ID e LED
+    itemsList.innerHTML = "";
+    productDescription.textContent = "";
+
+    console.log("Venda iniciada:", currentSale); // DEBUG: confirma que currentSale existe
 
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao iniciar venda:", err);
     setStatusError("Erro ao iniciar venda");
   }
 });
@@ -95,11 +97,12 @@ btnStart.addEventListener("click", async () => {
 // -------------------------------
 btnFinish.addEventListener("click", async () => {
   try {
-    const saleId = saleService.currentSaleId;
+    if (!currentSale) throw new Error("Nenhuma venda ativa");
 
-    await saleService.closeSale();
-    await printerService.print(saleId);
+    await API.closeSale(currentSale.id);
+    await API.printSale(currentSale.id);
 
+    currentSale = null;
     saleIdLabel.textContent = "—";
     btnStart.disabled = false;
     btnFinish.disabled = true;
@@ -108,10 +111,34 @@ btnFinish.addEventListener("click", async () => {
 
     clearSaleUI();
     setStatusIdle();
-
   } catch (err) {
     console.error(err);
     setStatusError("Erro ao finalizar");
+  }
+});
+
+// -------------------------------
+// PREENCHER DESCRIÇÃO AO DIGITAR CÓDIGO
+// -------------------------------
+productInput.addEventListener("input", async () => {
+  const productId = productInput.value.trim();
+
+  // se apagou o campo, limpa a descrição
+  if (!productId) {
+    productDescription.textContent = "";
+    return;
+  }
+
+  // só busca quando tiver EXATAMENTE 3 dígitos
+  if (!/^\d{3}$/.test(productId)) {
+    return;
+  }
+
+  try {
+    const product = await API.getProductById(productId);
+    productDescription.textContent = product.name || "";
+  } catch {
+    productDescription.textContent = "";
   }
 });
 
@@ -122,18 +149,20 @@ productInput.addEventListener("keydown", async (e) => {
   if (e.key !== "Enter") return;
 
   const productId = productInput.value.trim();
-  if (!productId) return;
+  if (!productId || !currentSale) return;
 
   try {
-    const updatedSale = await saleService.addItem(productId);
-    updateSaleUI(updatedSale);
+    currentSale = await API.addItem(currentSale.id, productId);
+    updateSaleUI(currentSale);
 
+    // após lançar o item, limpa os dois campos para o próximo input
     productInput.value = "";
+    productDescription.textContent = "";
     productInput.focus();
-
   } catch (err) {
     alert(err.message);
     productInput.value = "";
+    productDescription.textContent = "";
     productInput.focus();
   }
 });
@@ -143,9 +172,13 @@ productInput.addEventListener("keydown", async (e) => {
 // -------------------------------
 btnCancelLast.addEventListener("click", async () => {
   try {
-    const updatedSale = await saleService.cancelLastItem();
-    updateSaleUI(updatedSale);
+    if (!currentSale || !currentSale.items?.length) return;
 
+    const lastItem = [...currentSale.items].reverse()[0];
+    if (!lastItem) return;
+
+    currentSale = await API.cancelItem(currentSale.id, lastItem.product_id);
+    updateSaleUI(currentSale);
   } catch (err) {
     console.error(err);
     setStatusError("Erro ao cancelar item");
@@ -157,9 +190,14 @@ btnCancelLast.addEventListener("click", async () => {
 // -------------------------------
 btnRepeatLast.addEventListener("click", async () => {
   try {
-    const updatedSale = await saleService.repeatLastItem();
-    updateSaleUI(updatedSale);
+    if (!currentSale) return;
 
+    const lastItem = [...currentSale.items].reverse()[0];
+
+    if (!lastItem) return;
+
+    currentSale = await API.addItem(currentSale.id, lastItem.product_id, lastItem.quantity);
+    updateSaleUI(currentSale);
   } catch (err) {
     console.error(err);
     setStatusError("Erro ao repetir item");
@@ -188,7 +226,7 @@ cpfInput.addEventListener("blur", async () => {
   if (!cpf) return;
 
   try {
-    const customer = await customerService.fetchCustomer(cpf);
+    const customer = await API.getCustomerByCPF(cpf);
 
     clientName.textContent = customer.name;
     fidelidadeStatus.textContent = customer.isFidelizado
@@ -198,7 +236,6 @@ cpfInput.addEventListener("blur", async () => {
     fidelidadeStatus.className = customer.isFidelizado
       ? "fidelidade-sim"
       : "fidelidade-nao";
-
   } catch (err) {
     clientName.textContent = "—";
     fidelidadeStatus.textContent = "Cliente Não Fidelizado";
@@ -214,19 +251,17 @@ function updateSaleUI(sale) {
 
   const grouped = {};
 
-  sale.items
-    .filter(i => i.status === "ACTIVE")
-    .forEach(i => {
-      if (!grouped[i.product_id]) {
-        grouped[i.product_id] = {
-          product_id: i.product_id,
-          product_name: i.product_name,
-          quantity: 0,
-          price: i.price
-        };
-      }
-      grouped[i.product_id].quantity += i.quantity;
-    });
+  sale.items.forEach(i => {
+    if (!grouped[i.product_id]) {
+      grouped[i.product_id] = {
+        product_id: i.product_id,
+        product_name: i.product_name,
+        quantity: 0,
+        price: i.price
+      };
+    }
+    grouped[i.product_id].quantity += i.quantity;
+  });
 
   Object.values(grouped).forEach(item => {
     const li = document.createElement("li");
@@ -239,15 +274,20 @@ function updateSaleUI(sale) {
     cancelBtn.classList.add("cancel-btn");
 
     cancelBtn.onclick = async () => {
-      const updatedSale = await saleService.cancelLastItem();
-      updateSaleUI(updatedSale);
+      try {
+        currentSale = await API.cancelItem(currentSale.id, item.product_id);
+        updateSaleUI(currentSale);
+      } catch (err) {
+        console.error(err);
+        setStatusError("Erro ao cancelar item");
+      }
     };
 
     li.appendChild(cancelBtn);
     itemsList.appendChild(li);
   });
 
-  itemsCount.textContent = sale.items.filter(i => i.status === "ACTIVE").length;
+  itemsCount.textContent = sale.items.length;
   saleSubtotal.textContent = `R$ ${sale.subtotal.toFixed(2)}`;
   saleDiscount.textContent = `R$ ${sale.discount.toFixed(2)}`;
   saleTotal.textContent = `R$ ${sale.total.toFixed(2)}`;
