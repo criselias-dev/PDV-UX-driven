@@ -3,8 +3,8 @@ import { db } from '../database/connection.js';
 class SaleRepository {
   async create(sale) {
     await db.run(
-      'INSERT INTO sales (id, status) VALUES (?, ?)',
-      [sale.id, sale.status || 'OPEN']
+      'INSERT INTO sales (id, customer_cpf, status) VALUES (?, ?, ?)',
+      [sale.id, sale.customer_cpf || null, sale.status || 'OPEN']
     );
 
     return {
@@ -15,7 +15,7 @@ class SaleRepository {
 
   async findById(id) {
     const sale = await db.get(
-      'SELECT id, created_at, status FROM sales WHERE id = ?',
+      'SELECT id, customer_cpf, created_at, status FROM sales WHERE id = ?',
       [id]
     );
 
@@ -25,13 +25,14 @@ class SaleRepository {
 
     return {
       ...sale,
-      items
+      items,
+      customer_cpf: sale.customer_cpf
     };
   }
 
   async findAll() {
     const sales = await db.all(
-      'SELECT id, created_at, status FROM sales ORDER BY created_at DESC'
+      'SELECT id, customer_cpf, created_at, status FROM sales ORDER BY created_at DESC'
     );
 
     return sales;
@@ -41,6 +42,15 @@ class SaleRepository {
     const result = await db.run(
       'UPDATE sales SET status = ? WHERE id = ?',
       [status, id]
+    );
+
+    return result.changes > 0;
+  }
+
+  async updateCustomer(id, customerCPF) {
+    const result = await db.run(
+      'UPDATE sales SET customer_cpf = ? WHERE id = ?',
+      [customerCPF || null, id]
     );
 
     return result.changes > 0;
