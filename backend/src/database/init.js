@@ -44,16 +44,16 @@ export async function initDatabase() {
 
   if (customerCount.count === 0) {
     await db.run(
-      `INSERT INTO customers (cpf, name, points) VALUES (?, ?, ?)`,
-      ['11111111111', 'João Silva', 120]
+      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
+      ['11111111111', 'João Silva', 120, 'basic']
     );
     await db.run(
-      `INSERT INTO customers (cpf, name, points) VALUES (?, ?, ?)`,
-      ['22222222222', 'Maria Souza', 300]
+      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
+      ['22222222222', 'Maria Souza', 300, 'premium']
     );
     await db.run(
-      `INSERT INTO customers (cpf, name, points) VALUES (?, ?, ?)`,
-      ['24941917855', 'Cris Elias', 1200]
+      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
+      ['24941917855', 'Cris Elias', 1200, 'premium']
     );
     console.log('Clientes iniciais inseridos');
   }
@@ -77,15 +77,22 @@ export async function initDatabase() {
   const promotionCount = await db.get('SELECT COUNT(*) as count FROM promotions');
 
   if (promotionCount.count === 0) {
+    // Loyalty promotion: 5% discount on all items for fidelity customers
     await db.run(
-      `INSERT INTO promotions (id, product_id, description, discount, active)
-       VALUES (?, ?, ?, ?, ?)`,
-      ['1', '100', 'Desconto Café', 1.00, 1]
+      `INSERT INTO promotions (id, product_id, description, discount, discount_type, active, fidelity_only)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ['loyalty-5pct', null, 'Desconto Fidelidade 5%', 5.0, 'percentage', 1, 1]
+    );
+    // Product specific promotions
+    await db.run(
+      `INSERT INTO promotions (id, product_id, description, discount, discount_type, active, fidelity_only)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ['1', '100', 'Desconto Café', 1.00, 'fixed', 1, 0]
     );
     await db.run(
-      `INSERT INTO promotions (id, product_id, description, discount, active)
-       VALUES (?, ?, ?, ?, ?)`,
-      ['2', '102', 'Promo Pão de Queijo', 0.50, 1]
+      `INSERT INTO promotions (id, product_id, description, discount, discount_type, active, fidelity_only)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ['2', '102', 'Promo Pão de Queijo', 0.50, 'fixed', 1, 0]
     );
     console.log('Promoções iniciais inseridas');
   }
@@ -97,8 +104,8 @@ export async function initDatabase() {
 
   if (!printer) {
     await db.run(
-      `INSERT INTO printer (id, name) VALUES (?, ?)`,
-      [1, 'PDV-PRINTER-01']
+      `INSERT INTO printer (id, name, model, status) VALUES (?, ?, ?, ?)`,
+      [1, 'PDV-PRINTER-01', 'Samsung ML1630', 'ready']
     );
     console.log('Impressora padrão inserida');
   }

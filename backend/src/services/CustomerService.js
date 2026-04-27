@@ -9,14 +9,29 @@ class CustomerService {
     }
 
     // Retorno padronizado para frontend
+    const isFidelizado = customer.fidelity_status === 'premium' || customer.fidelity_status === 'gold';
+    
     return {
       id: customer.cpf,
       name: customer.name,
       cpf: customer.cpf,
       points: customer.points || 0,
-      isFidelizado: customer.points > 0,
-      tier: customer.points >= 300 ? "Premium" : "Básico"
+      fidelity_status: customer.fidelity_status || 'basic',
+      isFidelizado: isFidelizado,
+      tier: customer.fidelity_status || 'Básico'
     };
+  }
+
+  async getAll() {
+    return await CustomerRepository.findAll();
+  }
+
+  async create(customer) {
+    return await CustomerRepository.create(customer);
+  }
+
+  async update(cpf, customer) {
+    return await CustomerRepository.update(cpf, customer);
   }
 }
 

@@ -3,8 +3,10 @@
 -- ===============================
 CREATE TABLE IF NOT EXISTS sales (
   id TEXT PRIMARY KEY,
+  customer_cpf TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  status TEXT NOT NULL DEFAULT 'OPEN'
+  status TEXT NOT NULL DEFAULT 'OPEN',
+  FOREIGN KEY (customer_cpf) REFERENCES customers(cpf)
 );
 
 -- ===============================
@@ -37,7 +39,8 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS customers (
   cpf TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  points INTEGER NOT NULL DEFAULT 0
+  points INTEGER NOT NULL DEFAULT 0,
+  fidelity_status TEXT NOT NULL DEFAULT 'basic'
 );
 
 -- ===============================
@@ -64,10 +67,12 @@ CREATE TABLE IF NOT EXISTS current_session (
 -- ===============================
 CREATE TABLE IF NOT EXISTS promotions (
   id TEXT PRIMARY KEY,
-  product_id TEXT NOT NULL,
+  product_id TEXT,
   description TEXT NOT NULL,
   discount REAL NOT NULL,
+  discount_type TEXT NOT NULL DEFAULT 'fixed',
   active INTEGER NOT NULL DEFAULT 1,
+  fidelity_only INTEGER NOT NULL DEFAULT 0,
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
@@ -77,5 +82,7 @@ CREATE TABLE IF NOT EXISTS promotions (
 -- ===============================
 CREATE TABLE IF NOT EXISTS printer (
   id INTEGER PRIMARY KEY CHECK (id = 1),
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  model TEXT,
+  status TEXT NOT NULL DEFAULT 'ready'
 );

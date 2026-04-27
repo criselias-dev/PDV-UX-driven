@@ -1,20 +1,24 @@
 import SaleRepository from "../repositories/SaleRepository.js";
 import ProductRepository from "../repositories/ProductRepository.js";
 import OperatorRepository from "../repositories/OperatorRepository.js";
+import PromotionService from "./PromotionService.js";
+import CustomerService from "./CustomerService.js";
 
 class SaleService {
-  async startSale() {
-  // Criar venda sem depender de operador
-  const newSale = {
-    id: Date.now().toString(),
-    status: "OPEN",
-    operator_id: null // Nenhum operador
-  };
+  async startSale(customerCPF = null) {
+    // Criar venda sem depender de operador
+    const newSale = {
+      id: Date.now().toString(),
+      status: "OPEN",
+      operator_id: null, // Nenhum operador
+      customer_cpf: customerCPF || null
+    };
 
-  await SaleRepository.create(newSale);
-  return await this.getSale(newSale.id);
-}
-  async getSale(saleId) {
+    await SaleRepository.create(newSale);
+    return await this.getSale(newSale.id);
+  }
+
+  async getSale(saleId, customerCPF = null) {
     const sale = await SaleRepository.findById(saleId);
 
     if (!sale) {
@@ -28,12 +32,25 @@ class SaleService {
       0
     );
 
-    const discount = 0; // por enquanto sem regra de desconto
+    // Calculate loyalty discount if customer is provided
+    let discount = 0;
+    let customer = null;
+
+    if (customerCPF) {
+      try {
+        customer = await CustomerService.getByCPF(customerCPF);
+        discount = await PromotionService.calculateLoyaltyDiscount(subtotal, customer.isFidelizado);
+      } catch (err) {
+        console.warn("Customer not found for discount calculation:", err.message);
+      }
+    }
+
     const total = subtotal - discount;
 
     return {
       ...sale,
       items,
+      customer,
       subtotal,
       discount,
       total
@@ -63,7 +80,7 @@ class SaleService {
     };
 
     await SaleRepository.addItem(item);
-    return await this.getSale(saleId);
+    return await this.getSale(saleId, sale.customer_cpf);
   }
 
   async cancelItem(saleId, productId) {
@@ -81,7 +98,24 @@ class SaleService {
     if (!removed) throw new Error("Não foi possível cancelar o item");
 
     await ProductRepository.incrementStock(pid, 1);
-    return await this.getSale(saleId);
+    return await this.getSale(saleId, sale.customer_cpf);
+  }
+
+  async setCustomer(saleId, customerCPF) {
+    const sale = await SaleRepository.findById(saleId);
+    if (!sale) throw new Error("Venda não encontrada");
+
+    // Validate customer exists
+    try {
+      await CustomerService.getByCPF(customerCPF);
+    } catch (err) {
+      throw new Error("Cliente não encontrado");
+    }
+
+    // Update sale with customer CPF
+    await SaleRepository.updateCustomer(saleId, customerCPF);
+
+    return await this.getSale(saleId, customerCPF);
   }
 
   async closeSale(saleId) {
@@ -93,7 +127,7 @@ class SaleService {
     if (!items || items.length === 0) throw new Error("Não é possível fechar uma venda sem itens");
 
     await SaleRepository.updateStatus(saleId, "CLOSED");
-    return await this.getSale(saleId);
+    return await this.getSale(saleId, sale.customer_cpf);
   }
 }
 

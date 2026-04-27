@@ -3,12 +3,30 @@ import saleService from '../services/SaleService.js';
 
 class SaleController {
   async startSale(req, res) {
+    const { customerCPF } = req.body;
+
     try {
-      const sale = await saleService.startSale();
+      const sale = await saleService.startSale(customerCPF || null);
       res.json(sale);
     } catch (err) {
       console.error("Erro SaleController startSale:", err.message || err);
       res.status(400).json({ message: err.message || "Erro ao iniciar venda" });
+    }
+  }
+
+  async setCustomer(req, res) {
+    const { saleId, customerCPF } = req.body;
+
+    if (!saleId || !customerCPF) {
+      return res.status(400).json({ message: "SaleId ou CPF não informado" });
+    }
+
+    try {
+      const sale = await saleService.setCustomer(saleId, customerCPF);
+      res.json(sale);
+    } catch (err) {
+      console.error("Erro SaleController setCustomer:", err.message || err);
+      res.status(400).json({ message: err.message || "Erro ao atribuir cliente à venda" });
     }
   }
 
