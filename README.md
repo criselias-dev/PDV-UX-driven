@@ -71,8 +71,8 @@ pdv-ux-driven/
 
 🧩 Status do Projeto
 - ✔ Frontend moderno concluído
-- ⏳ Backend em desenvolvimento
-- ⏳ Integração completa em andamento
+- ✔ Backend em desenvolvimento
+- ✔ Integração completa em andamento
 
 📜 Licença
 Projeto proprietário — uso interno.
