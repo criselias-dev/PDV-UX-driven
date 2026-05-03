@@ -3,7 +3,7 @@ import saleService from '../services/SaleService.js';
 
 class SaleController {
   async startSale(req, res) {
-    const { customerCPF } = req.body;
+    const { customerCPF } = req.body || {};
 
     try {
       const sale = await saleService.startSale(customerCPF || null);

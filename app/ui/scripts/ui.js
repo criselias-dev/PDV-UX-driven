@@ -58,6 +58,22 @@ function setStatusError(msg) {
   statusLabel.textContent = msg || "Erro";
 }
 
+function setSaleOpen(isOpen) {
+  btnStart.disabled = isOpen;
+  btnFinish.disabled = !isOpen;
+  productInput.disabled = !isOpen;
+  btnCancelLast.disabled = !isOpen;
+  btnRepeatLast.disabled = !isOpen;
+}
+
+function initUI() {
+  currentSale = null;
+  saleIdLabel.textContent = "—";
+  setStatusIdle();
+  clearSaleUI();
+  setSaleOpen(false);
+}
+
 // -------------------------------
 // INICIAR VENDA — F1
 // -------------------------------
@@ -72,17 +88,14 @@ btnStart.addEventListener("click", async (e) => {
     saleIdLabel.textContent = currentSale.id;
 
     // 3️⃣ habilitar/desabilitar controles
-    btnStart.disabled = true;
-    btnFinish.disabled = false;
-    productInput.disabled = false;
+    setSaleOpen(true);
     productInput.focus();
 
     // 4️⃣ acender LED verde e status ativo
     setStatusActive();
 
-    // 5️⃣ limpar somente lista de itens e descrição, mantendo ID e LED
-    itemsList.innerHTML = "";
-    productDescription.textContent = "";
+    // 5️⃣ atualizar UI da venda vazia
+    updateSaleUI(currentSale);
 
     console.log("Venda iniciada:", currentSale); // DEBUG: confirma que currentSale existe
 
@@ -104,13 +117,11 @@ btnFinish.addEventListener("click", async () => {
 
     currentSale = null;
     saleIdLabel.textContent = "—";
-    btnStart.disabled = false;
-    btnFinish.disabled = true;
-    productInput.disabled = true;
     productInput.value = "";
 
     clearSaleUI();
     setStatusIdle();
+    setSaleOpen(false);
   } catch (err) {
     console.error(err);
     setStatusError("Erro ao finalizar");
@@ -304,6 +315,11 @@ function clearSaleUI() {
   saleDiscount.textContent = "R$ 0,00";
   saleTotal.textContent = "R$ 0,00";
 }
+
+// -------------------------------
+// INICIALIZAÇÃO
+// -------------------------------
+initUI();
 
 // -------------------------------
 // LOG
