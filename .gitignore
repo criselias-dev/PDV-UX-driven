@@ -48,6 +48,11 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Database files
+*.sqlite
+*.db
+backend/src/database/*.sqlite
 .env.*.local
 
 # Misc

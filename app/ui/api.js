@@ -35,7 +35,11 @@ async function request(endpoint, options = {}) {
 // ======================================================
 
 export async function startSale() {
-  return request("/sales", { method: "POST" });
+  return request("/sales", { 
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
 }
 
 export async function addItem(saleId, productId, quantity = 1) {

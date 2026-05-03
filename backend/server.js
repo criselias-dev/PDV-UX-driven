@@ -29,6 +29,12 @@ app.get('/api', (req, res) => {
   res.json({ message: 'PDV-UX-driven backend is running' });
 });
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Erro não tratado:', err.message || err);
+  res.status(500).json({ message: err.message || 'Erro interno do servidor' });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
