@@ -1,47 +1,103 @@
-PDV UX‑Driven — A Evolução do Ponto de Venda
-O PDV UX‑Driven é a evolução natural do PDV original, mas construído com uma mudança fundamental de abordagem:
-em vez de começar pelo backend e adaptar a interface depois, este projeto nasce de fora para dentro, guiado pela experiência real do operador.
-Essa abordagem — UX‑Driven Development — coloca a interface, o fluxo e a usabilidade como elementos centrais do design do sistema.
-A partir de um frontend moderno, fluido e orientado à produtividade, o backend é projetado para atender exatamente às necessidades da operação.
+# PDV UX-Driven — Sistema de Ponto de Venda Orientado à Experiência
 
-🎯 Por que UX‑Driven Development?
-- Um PDV é, antes de tudo, uma ferramenta operacional.
-- A experiência do operador define a eficiência do negócio.
-- Começar pelo frontend permite visualizar o fluxo completo antes de escrever uma única linha de backend.
-- Isso reduz retrabalho, elimina endpoints desnecessários e garante que o backend seja enxuto, objetivo e funcional.
-- Essa abordagem demonstra domínio não apenas técnico, mas também de produto, arquitetura e visão de negócio.
+O **PDV UX-Driven** é um sistema de ponto de venda desenvolvido com uma abordagem **UX-Driven Development**, onde o fluxo operacional do usuário define a arquitetura do sistema.
 
-🧠 Minha atuação no projeto
-Este projeto demonstra minha capacidade de atuar:
-Como Desenvolvedor Frontend
-Criando uma interface moderna, responsiva e orientada à produtividade.
-Como Desenvolvedor Backend
-Projetando APIs, serviços e integrações que suportam o fluxo real do PDV.
-Como Arquiteto de Software
-Definindo camadas, responsabilidades e padrões de evolução.
-Como Business Architect
-Guiando o projeto pela experiência do usuário e pelas necessidades reais da operação.
+Diferente do modelo tradicional (backend-first), este projeto é construído **de fora para dentro**, garantindo que cada decisão técnica exista para atender uma necessidade real de operação.
 
-🚀 Objetivo do Projeto
-Criar um PDV moderno, modular, escalável e preparado para o futuro, com:
-- UI moderna e responsiva
-- Arquitetura limpa
-- Backend desacoplado
-- Evolução contínua
-- Experiência operacional superior
+---
 
+## 🎯 Objetivo
 
-📁 Estrutura do Projeto
-```
+Construir um sistema de PDV:
+
+* Modular e evolutivo
+* Orientado à operação real
+* Com separação clara de responsabilidades
+* Preparado para crescimento incremental de regras de negócio
+
+---
+
+## 🧠 Abordagem: UX-Driven Development
+
+* A interface define o fluxo
+* O fluxo define as regras
+* As regras definem os serviços
+* Os serviços definem o backend
+
+Isso reduz retrabalho, evita complexidade desnecessária e mantém o sistema alinhado com o uso real.
+
+---
+
+## 🧩 Arquitetura
+
+O projeto segue uma arquitetura em camadas bem definidas:
+
+* **Controller** → recebe requisições e orquestra o fluxo
+* **Service** → aplica regras de negócio
+* **Repository** → acesso e persistência de dados
+* **Domain** → representação das entidades
+* **Database** → SQLite para persistência local
+
+Essa separação permite evolução independente de cada camada.
+
+---
+
+## 🔄 Fluxo Operacional (em evolução)
+
+Fluxo atual da venda:
+
+1. Seleção de produto via interface
+2. Validação do produto no backend
+3. Montagem da estrutura de venda
+4. Persistência parcial no banco de dados
+
+Em evolução:
+
+* Finalização completa da venda
+* Aplicação de regras de desconto
+* Integração com fidelidade de cliente
+* Geração completa de recibo
+
+---
+
+## 🧪 Estado Atual do Projeto
+
+### ✔ Implementado
+
+* Estrutura backend completa em camadas
+* Persistência com SQLite
+* Organização de rotas, controllers e serviços
+* Modelagem de domínio (Product, Sale, Customer, etc.)
+* Interface frontend funcional
+* Comunicação frontend ↔ backend
+
+### ⚙️ Em Desenvolvimento
+
+* Finalização da venda
+* Motor de promoções
+* Regras de fidelidade de cliente
+* Validações avançadas de fluxo
+
+---
+
+## 🧠 Decisões Técnicas
+
+* **SQLite** → simplicidade e foco em lógica antes de escala
+* **Arquitetura em camadas** → clareza e manutenção
+* **Separação Domain / Service / Repository** → isolamento de responsabilidades
+* **UX-first** → evitar backend superdimensionado
+
+---
+
+## 🧱 Estrutura do Projeto
+
 pdv-ux-driven/
-│
+
 ├── app/
 │   ├── ui/
 │   │   ├── index.html
 │   │   ├── scripts/
-│   │   │   └── ui.js
 │   │   └── styles/
-│   │       └── main.css
 │   │
 │   ├── application/
 │   │   ├── SaleService.js
@@ -55,24 +111,62 @@ pdv-ux-driven/
 │       └── api.js
 │
 └── backend/
-    ├── src/
-    │   ├── routes/
-    │   ├── controllers/
-    │   ├── services/
-    │   ├── repositories/
-    │   ├── domain/
-    │   └── infrastructure/
-    │
-    ├── server.js
-    └── package.json
+├── src/
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/
+│   ├── repositories/
+│   ├── domain/
+│   └── infrastructure/
+│
+├── server.js
+└── package.json
 
+---
 
-```
+## ▶️ Como Executar
 
-🧩 Status do Projeto
-- ✔ Frontend moderno concluído
-- ✔ Backend em desenvolvimento
-- ✔ Integração completa em andamento
+### Backend
 
-📜 Licença
+cd backend
+npm install
+node server.js
+
+### Frontend
+
+Abrir:
+
+app/ui/index.html
+
+---
+
+## 🔗 Direção de Evolução
+
+O projeto não foi construído com regras fixas.
+
+As regras de negócio estão sendo:
+
+* Modeladas progressivamente
+* Validadas via simulação de uso real
+* Refinadas conforme novos cenários surgem
+
+Essa abordagem garante que o sistema evolua com consistência.
+
+---
+
+## 🧠 Sobre o Projeto
+
+Este projeto não é apenas um PDV.
+
+Ele demonstra:
+
+* Capacidade de modelar sistemas reais
+* Tradução de fluxo operacional em lógica de software
+* Construção incremental orientada a problema
+* Organização arquitetural consistente
+
+---
+
+## 📜 Licença
+
 Projeto proprietário — uso interno.
