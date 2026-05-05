@@ -36,9 +36,29 @@ const clientName = document.getElementById("clientName");
 const fidelidadeStatus = document.getElementById("fidelidadeStatus");
 
 // -------------------------------
-// VARIÁVEL DE ESTADO
+// VARIÁVEL DE ESTADO & PERSISTÊNCIA
 // -------------------------------
 let currentSale = null;
+
+// Salvar sale no localStorage
+function saveSaleToStorage(sale) {
+  if (sale) {
+    localStorage.setItem('currentSale', JSON.stringify(sale));
+  } else {
+    localStorage.removeItem('currentSale');
+  }
+}
+
+// Restaurar sale do localStorage
+function loadSaleFromStorage() {
+  try {
+    const stored = localStorage.getItem('currentSale');
+    return stored ? JSON.parse(stored) : null;
+  } catch (err) {
+    console.warn('Erro ao restaurar venda do localStorage:', err);
+    return null;
+  }
+}
 
 // -------------------------------
 // STATUS VISUAL
@@ -58,20 +78,49 @@ function setStatusError(msg) {
   statusLabel.textContent = msg || "Erro";
 }
 
-function setSaleOpen(isOpen) {
+function setSaleOpen(isOpen, hasItems = false) {
   btnStart.disabled = isOpen;
-  btnFinish.disabled = !isOpen;
+  btnFinish.disabled = !isOpen || !hasItems;
   productInput.disabled = !isOpen;
-  btnCancelLast.disabled = !isOpen;
-  btnRepeatLast.disabled = !isOpen;
+  btnCancelLast.disabled = !isOpen || !hasItems;
+  btnRepeatLast.disabled = !isOpen || !hasItems;
 }
 
 function initUI() {
-  currentSale = null;
-  saleIdLabel.textContent = "—";
-  setStatusIdle();
-  clearSaleUI();
-  setSaleOpen(false);
+  // Tenta restaurar venda anterior
+  const savedSale = loadSaleFromStorage();
+  
+  if (savedSale && savedSale.status === 'OPEN') {
+    // Se uma venda estava aberta, restaura
+    currentSale = savedSale;
+    saleIdLabel.textContent = currentSale.id;
+    setStatusActive();
+    const hasItems = Array.isArray(currentSale.items) && currentSale.items.length > 0;
+    setSaleOpen(true, hasItems);
+    updateSaleUI(currentSale);
+    
+    // Restaura informações do cliente se houver
+    if (currentSale.customer) {
+      clientName.textContent = currentSale.customer.name;
+      fidelidadeStatus.textContent = currentSale.customer.isFidelizado 
+        ? "Cliente Fidelizado" 
+        : "Cliente Não Fidelizado";
+      fidelidadeStatus.className = currentSale.customer.isFidelizado 
+        ? "fidelidade-sim" 
+        : "fidelidade-nao";
+    }
+    
+    productInput.focus();
+    console.log("Venda restaurada do armazenamento local:", currentSale);
+  } else {
+    // Caso contrário, inicia novo
+    currentSale = null;
+    saleIdLabel.textContent = "—";
+    setStatusIdle();
+    clearSaleUI();
+    setSaleOpen(false, false);
+    saveSaleToStorage(null);
+  }
 }
 
 // -------------------------------
@@ -83,18 +132,19 @@ btnStart.addEventListener("click", async (e) => {
   try {
     // 1️⃣ iniciar venda no backend
     currentSale = await API.startSale();
+    saveSaleToStorage(currentSale);
 
     // 2️⃣ atualizar ID da venda na tela
     saleIdLabel.textContent = currentSale.id;
 
-    // 3️⃣ habilitar/desabilitar controles
-    setSaleOpen(true);
+    // 3️⃣ habilitar/desabilitar controles (venda aberta, mas ainda sem itens)
+    setSaleOpen(true, false);
     productInput.focus();
 
     // 4️⃣ acender LED verde e status ativo
     setStatusActive();
 
-    // 5️⃣ atualizar UI da venda vazia
+    // 5️⃣ manter a UI da venda vazia até o primeiro item
     updateSaleUI(currentSale);
 
     console.log("Venda iniciada:", currentSale); // DEBUG: confirma que currentSale existe
@@ -113,9 +163,24 @@ btnFinish.addEventListener("click", async () => {
     if (!currentSale) throw new Error("Nenhuma venda ativa");
 
     await API.closeSale(currentSale.id);
-    await API.printSale(currentSale.id);
+
+    try {
+      await API.printSale(currentSale.id);
+    } catch (printErr) {
+      console.warn("Venda fechada, mas erro na impressão:", printErr);
+      currentSale = null;
+      saveSaleToStorage(null);
+      saleIdLabel.textContent = "—";
+      productInput.value = "";
+      clearSaleUI();
+      setStatusIdle();
+      setSaleOpen(false);
+      setStatusError("Venda finalizada, erro na impressão");
+      return;
+    }
 
     currentSale = null;
+    saveSaleToStorage(null);
     saleIdLabel.textContent = "—";
     productInput.value = "";
 
@@ -124,7 +189,7 @@ btnFinish.addEventListener("click", async () => {
     setSaleOpen(false);
   } catch (err) {
     console.error(err);
-    setStatusError("Erro ao finalizar");
+    setStatusError(err.message || "Erro ao finalizar");
   }
 });
 
@@ -164,6 +229,7 @@ productInput.addEventListener("keydown", async (e) => {
 
   try {
     currentSale = await API.addItem(currentSale.id, productId);
+    saveSaleToStorage(currentSale);
     updateSaleUI(currentSale);
 
     // após lançar o item, limpa os dois campos para o próximo input
@@ -189,6 +255,7 @@ btnCancelLast.addEventListener("click", async () => {
     if (!lastItem) return;
 
     currentSale = await API.cancelItem(currentSale.id, lastItem.product_id);
+    saveSaleToStorage(currentSale);
     updateSaleUI(currentSale);
   } catch (err) {
     console.error(err);
@@ -208,6 +275,7 @@ btnRepeatLast.addEventListener("click", async () => {
     if (!lastItem) return;
 
     currentSale = await API.addItem(currentSale.id, lastItem.product_id, lastItem.quantity);
+    saveSaleToStorage(currentSale);
     updateSaleUI(currentSale);
   } catch (err) {
     console.error(err);
@@ -247,6 +315,19 @@ cpfInput.addEventListener("blur", async () => {
     fidelidadeStatus.className = customer.isFidelizado
       ? "fidelidade-sim"
       : "fidelidade-nao";
+
+    // Se há uma venda ativa, associar o cliente e recalcular desconto
+    if (currentSale) {
+      try {
+        currentSale = await API.setCustomer(currentSale.id, cpf);
+        saveSaleToStorage(currentSale);
+        updateSaleUI(currentSale);
+        console.log("Cliente associado à venda:", customer.name);
+      } catch (setErr) {
+        console.warn("Erro ao associar cliente à venda:", setErr);
+        // Não falha completamente, apenas avisa
+      }
+    }
   } catch (err) {
     clientName.textContent = "—";
     fidelidadeStatus.textContent = "Cliente Não Fidelizado";
@@ -261,6 +342,9 @@ function updateSaleUI(sale) {
   itemsList.innerHTML = "";
 
   const grouped = {};
+
+  const hasItems = Array.isArray(sale.items) && sale.items.length > 0;
+  setSaleOpen(true, hasItems);
 
   sale.items.forEach(i => {
     if (!grouped[i.product_id]) {
@@ -287,6 +371,7 @@ function updateSaleUI(sale) {
     cancelBtn.onclick = async () => {
       try {
         currentSale = await API.cancelItem(currentSale.id, item.product_id);
+        saveSaleToStorage(currentSale);
         updateSaleUI(currentSale);
       } catch (err) {
         console.error(err);

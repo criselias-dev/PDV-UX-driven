@@ -32,13 +32,14 @@ class SaleService {
       0
     );
 
-    // Calculate loyalty discount if customer is provided
+    // Calculate loyalty discount if customer is provided or if sale already has customer
     let discount = 0;
     let customer = null;
+    const cpfToUse = customerCPF || sale.customer_cpf;
 
-    if (customerCPF) {
+    if (cpfToUse) {
       try {
-        customer = await CustomerService.getByCPF(customerCPF);
+        customer = await CustomerService.getByCPF(cpfToUse);
         discount = await PromotionService.calculateLoyaltyDiscount(subtotal, customer.isFidelizado);
       } catch (err) {
         console.warn("Customer not found for discount calculation:", err.message);

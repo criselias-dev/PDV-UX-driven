@@ -66,6 +66,14 @@ export async function closeSale(saleId) {
   return request(`/sales/${saleId}/close`, { method: "POST" });
 }
 
+export async function setCustomer(saleId, customerCPF) {
+  return request("/sales/customer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ saleId, customerCPF })
+  });
+}
+
 // ======================================================
 // PRODUTOS
 // ======================================================
