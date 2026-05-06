@@ -1,4 +1,5 @@
 import CustomerRepository from "../repositories/CustomerRepository.js";
+import FidelityService from "./FidelityService.js";
 
 class CustomerService {
   async getByCPF(cpf) {
@@ -8,9 +9,12 @@ class CustomerService {
       throw new Error("Cliente não encontrado");
     }
 
+    // Obter informações completas de fidelização
+    const fidelityInfo = await FidelityService.getFidelityInfo(cpf);
+
     // Retorno padronizado para frontend
-    const isFidelizado = customer.fidelity_status === 'premium' || customer.fidelity_status === 'gold';
-    
+    const isFidelizado = fidelityInfo.tier !== 'basic';
+
     return {
       id: customer.cpf,
       name: customer.name,
@@ -18,7 +22,11 @@ class CustomerService {
       points: customer.points || 0,
       fidelity_status: customer.fidelity_status || 'basic',
       isFidelizado: isFidelizado,
-      tier: customer.fidelity_status || 'Básico'
+      tier: customer.fidelity_status || 'basic',
+      discount: fidelityInfo.discount,
+      nextTier: fidelityInfo.nextTier,
+      created_at: customer.created_at,
+      updated_at: customer.updated_at
     };
   }
 

@@ -45,17 +45,6 @@ class PromotionRepository {
     return promotions;
   }
 
-  async findLoyaltyPromotion() {
-    const promotion = await db.get(
-      `SELECT id, product_id, description, discount, discount_type, active, fidelity_only
-       FROM promotions
-       WHERE fidelity_only = 1 AND product_id IS NULL AND active = 1
-       LIMIT 1`
-    );
-
-    return promotion || null;
-  }
-
   async create(promotion) {
     const id = promotion.id || Date.now().toString();
     await db.run(

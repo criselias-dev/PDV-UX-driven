@@ -12,7 +12,10 @@ import printerRoutes from './src/routes/printer.routes.js';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: true, // Permite qualquer origem temporariamente para debug
+  credentials: true
+}));
 app.use(express.json());
 
 // Inicializa SQLite antes de subir a API

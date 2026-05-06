@@ -17,6 +17,7 @@ const btnCancelLast = document.getElementById("btnCancelLast");
 const btnRepeatLast = document.getElementById("btnRepeatLast");
 const btnToggleContrast = document.getElementById("btnToggleContrast");
 const btnAlerta = document.getElementById("btnAlerta");
+const btnClearCpf = document.getElementById("btnClearCpf");
 
 const productInput = document.getElementById("productInput");
 const itemsList = document.getElementById("itemsList");
@@ -36,9 +37,21 @@ const clientName = document.getElementById("clientName");
 const fidelidadeStatus = document.getElementById("fidelidadeStatus");
 
 // -------------------------------
+// INICIALIZAÇÃO INICIAL
+// -------------------------------
+cpfInput.disabled = true;
+
+// -------------------------------
 // VARIÁVEL DE ESTADO & PERSISTÊNCIA
 // -------------------------------
 let currentSale = null;
+let ignoreCpfBlur = false;
+
+function resetCustomerInfo() {
+  clientName.textContent = "—";
+  fidelidadeStatus.textContent = "Cliente Não Fidelizado";
+  fidelidadeStatus.className = "fidelidade-nao";
+}
 
 // Salvar sale no localStorage
 function saveSaleToStorage(sale) {
@@ -82,6 +95,7 @@ function setSaleOpen(isOpen, hasItems = false) {
   btnStart.disabled = isOpen;
   btnFinish.disabled = !isOpen || !hasItems;
   productInput.disabled = !isOpen;
+  cpfInput.disabled = !isOpen;
   btnCancelLast.disabled = !isOpen || !hasItems;
   btnRepeatLast.disabled = !isOpen || !hasItems;
 }
@@ -118,6 +132,7 @@ function initUI() {
     saleIdLabel.textContent = "—";
     setStatusIdle();
     clearSaleUI();
+    resetCustomerInfo();
     setSaleOpen(false, false);
     saveSaleToStorage(null);
   }
@@ -300,21 +315,25 @@ btnAlerta.addEventListener("click", () => {
 // -------------------------------
 // BUSCAR CLIENTE PELO CPF
 // -------------------------------
-cpfInput.addEventListener("blur", async () => {
-  const cpf = cpfInput.value.trim();
+async function handleCpfLookup(cpf) {
   if (!cpf) return;
 
   try {
     const customer = await API.getCustomerByCPF(cpf);
+    const fidelityInfo = await API.getCustomerFidelityInfo(cpf);
 
     clientName.textContent = customer.name;
-    fidelidadeStatus.textContent = customer.isFidelizado
-      ? "Cliente Fidelizado"
-      : "Cliente Não Fidelizado";
-
+    fidelidadeStatus.textContent = `Tier: ${fidelityInfo.tier.toUpperCase()} (${fidelityInfo.discount}% desconto)`;
     fidelidadeStatus.className = customer.isFidelizado
       ? "fidelidade-sim"
       : "fidelidade-nao";
+
+    // Mostrar pontos e próximo tier se disponível
+    if (fidelityInfo.nextTier) {
+      fidelidadeStatus.textContent += ` - ${fidelityInfo.points} pontos (próximo: ${fidelityInfo.nextTier.tier.toUpperCase()} em ${fidelityInfo.nextTier.pointsNeeded} pontos)`;
+    } else {
+      fidelidadeStatus.textContent += ` - ${fidelityInfo.points} pontos (tier máximo!)`;
+    }
 
     // Se há uma venda ativa, associar o cliente e recalcular desconto
     if (currentSale) {
@@ -329,10 +348,35 @@ cpfInput.addEventListener("blur", async () => {
       }
     }
   } catch (err) {
-    clientName.textContent = "—";
-    fidelidadeStatus.textContent = "Cliente Não Fidelizado";
-    fidelidadeStatus.className = "fidelidade-nao";
+    resetCustomerInfo();
   }
+}
+
+cpfInput.addEventListener("blur", async () => {
+  if (ignoreCpfBlur) {
+    ignoreCpfBlur = false;
+    return;
+  }
+
+  const cpf = cpfInput.value.trim();
+  await handleCpfLookup(cpf);
+});
+
+cpfInput.addEventListener("keydown", async (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+
+  const cpf = cpfInput.value.trim();
+  await handleCpfLookup(cpf);
+
+  cpfInput.value = "";
+});
+
+btnClearCpf.addEventListener("click", () => {
+  ignoreCpfBlur = true;
+  cpfInput.value = "";
+  resetCustomerInfo();
+  cpfInput.focus();
 });
 
 // -------------------------------

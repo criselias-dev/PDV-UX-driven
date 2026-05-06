@@ -38,24 +38,112 @@ export async function initDatabase() {
   }
 
   // ===============================
-  // SEED CUSTOMERS
+  // SEED CUSTOMERS - Sistema de Fidelização
   // ===============================
   const customerCount = await db.get('SELECT COUNT(*) as count FROM customers');
 
   if (customerCount.count === 0) {
+    // Clientes com diferentes tiers
     await db.run(
-      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
-      ['11111111111', 'João Silva', 120, 'basic']
+      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      ['11111111111', 'João Silva', 50, 'basic', '2024-01-15T10:00:00Z', '2024-01-15T10:00:00Z']
     );
     await db.run(
-      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
-      ['22222222222', 'Maria Souza', 300, 'premium']
+      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      ['22222222222', 'Maria Souza', 250, 'bronze', '2024-01-10T10:00:00Z', '2024-02-20T14:30:00Z']
     );
     await db.run(
-      `INSERT INTO customers (cpf, name, points, fidelity_status) VALUES (?, ?, ?, ?)`,
-      ['00000000000', 'Cliente Removido', 1200, 'premium']
+      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      ['33333333333', 'Pedro Santos', 450, 'silver', '2024-01-05T10:00:00Z', '2024-03-10T16:45:00Z']
     );
-    console.log('Clientes iniciais inseridos');
+    await db.run(
+      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      ['00000000000', 'Cliente Removido', 1200, 'gold', '2023-12-01T10:00:00Z', '2024-03-15T09:20:00Z']
+    );
+    await db.run(
+      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+      ['55555555555', 'Ana Costa', 2500, 'platinum', '2023-10-01T10:00:00Z', '2024-03-20T11:15:00Z']
+    );
+    console.log('Clientes com sistema de fidelização inseridos');
+  }
+
+  // ===============================
+  // SEED FIDELITY HISTORY - Histórico de pontos
+  // ===============================
+  const historyCount = await db.get('SELECT COUNT(*) as count FROM fidelity_history');
+
+  if (historyCount.count === 0) {
+    // Histórico para João Silva (basic)
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['11111111111', 'sale_001', 25, 'Compra realizada - R$ 25.00', '2024-01-16T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['11111111111', 'sale_002', 25, 'Compra realizada - R$ 25.00', '2024-01-20T10:00:00Z']
+    );
+
+    // Histórico para Maria Souza (bronze)
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['22222222222', 'sale_003', 50, 'Compra realizada - R$ 50.00', '2024-01-12T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['22222222222', 'sale_004', 75, 'Compra realizada - R$ 75.00', '2024-01-25T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['22222222222', 'sale_005', 125, 'Compra realizada - R$ 125.00', '2024-02-20T14:30:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
+      ['22222222222', 0, 'Upgrade para tier bronze', '2024-02-20T14:30:00Z']
+    );
+
+    // Histórico para Pedro Santos (silver)
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['33333333333', 'sale_006', 300, 'Compra realizada - R$ 300.00', '2024-01-06T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['33333333333', 'sale_007', 150, 'Compra realizada - R$ 150.00', '2024-03-10T16:45:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
+      ['33333333333', 0, 'Upgrade para tier silver', '2024-01-06T10:00:00Z']
+    );
+
+    // Histórico para Cliente Removido (gold)
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['00000000000', 'sale_008', 500, 'Compra realizada - R$ 500.00', '2023-12-02T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['00000000000', 'sale_009', 700, 'Compra realizada - R$ 700.00', '2024-03-15T09:20:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
+      ['00000000000', 0, 'Upgrade para tier gold', '2023-12-02T10:00:00Z']
+    );
+
+    // Histórico para Ana Costa (platinum)
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['55555555555', 'sale_010', 1000, 'Compra realizada - R$ 1000.00', '2023-10-02T10:00:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
+      ['55555555555', 'sale_011', 1500, 'Compra realizada - R$ 1500.00', '2024-03-20T11:15:00Z']
+    );
+    await db.run(
+      `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
+      ['55555555555', 0, 'Upgrade para tier platinum', '2023-10-02T10:00:00Z']
+    );
+
+    console.log('Histórico de fidelização inserido');
   }
 
   // ===============================
@@ -72,18 +160,13 @@ export async function initDatabase() {
   }
 
   // ===============================
-  // SEED PROMOTIONS
+  // SEED PROMOTIONS - Sistema de Fidelização (descontos por tier)
   // ===============================
   const promotionCount = await db.get('SELECT COUNT(*) as count FROM promotions');
 
   if (promotionCount.count === 0) {
-    // Loyalty promotion: 5% discount on all items for fidelity customers
-    await db.run(
-      `INSERT INTO promotions (id, product_id, description, discount, discount_type, active, fidelity_only)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ['loyalty-5pct', null, 'Desconto Fidelidade 5%', 5.0, 'percentage', 1, 1]
-    );
-    // Product specific promotions
+    // Removida promoção geral de fidelidade - agora usa tiers
+    // Promoções específicas de produto continuam
     await db.run(
       `INSERT INTO promotions (id, product_id, description, discount, discount_type, active, fidelity_only)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -94,7 +177,7 @@ export async function initDatabase() {
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       ['2', '102', 'Promo Pão de Queijo', 0.50, 'fixed', 1, 0]
     );
-    console.log('Promoções iniciais inseridas');
+    console.log('Promoções específicas inseridas (descontos de fidelização agora por tier)');
   }
 
   // ===============================

@@ -3,7 +3,7 @@
 // API do Frontend — Comunicação com o backend PDV-UX-driven
 // ======================================================
 
-const API_BASE = "http://127.0.0.1:3000/api";
+const API_BASE = "http://localhost:3000/api";
 
 // ------------------------------------------------------
 // Função auxiliar para JSON seguro
@@ -20,14 +20,31 @@ async function safeJson(res) {
 // Função base para evitar repetição
 // ------------------------------------------------------
 async function request(endpoint, options = {}) {
-  const res = await fetch(`${API_BASE}${endpoint}`, options);
-  const data = await safeJson(res);
+  const url = `${API_BASE}${endpoint}`;
+  console.log(`[API] ${options.method || 'GET'} ${url}`);
 
-  if (!res.ok) {
-    throw new Error(data?.message || `Erro em ${endpoint}`);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
+    });
+
+    console.log(`[API] Response status: ${res.status}`);
+
+    const data = await safeJson(res);
+
+    if (!res.ok) {
+      throw new Error(data?.message || `Erro em ${endpoint}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`[API] Error for ${url}:`, error);
+    throw error;
   }
-
-  return data;
 }
 
 // ======================================================
@@ -92,6 +109,18 @@ export async function getAllProducts() {
 
 export async function getCustomerByCPF(cpf) {
   return request(`/customers/${cpf}`);
+}
+
+export async function getCustomerFidelityInfo(cpf) {
+  return request(`/customers/${cpf}/fidelity`);
+}
+
+export async function createCustomer(customerData) {
+  return request("/customers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customerData)
+  });
 }
 
 // ======================================================

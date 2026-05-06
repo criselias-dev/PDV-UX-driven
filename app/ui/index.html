@@ -167,6 +167,39 @@
   <!-- UI.js moderno -->
   <script type="module" src="./scripts/ui.js"></script>
 
+  <!-- MODAL DE FIDELIZAÇÃO -->
+  <div id="fidelizacaoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Fidelização de Cliente</h3>
+        <span class="modal-close">&times;</span>
+      </div>
+
+      <div id="modalStep1" class="modal-step">
+        <p>Cliente não encontrado. Deseja fidelizar?</p>
+        <div class="modal-buttons">
+          <button id="btnFidelizarSim" class="primary-btn">Sim</button>
+          <button id="btnFidelizarNao" class="secondary-btn">Não</button>
+        </div>
+      </div>
+
+      <div id="modalStep2" class="modal-step hidden">
+        <div class="form-group">
+          <label for="newCustomerCpf">CPF:</label>
+          <input type="text" id="newCustomerCpf" readonly>
+        </div>
+        <div class="form-group">
+          <label for="newCustomerName">Nome:</label>
+          <input type="text" id="newCustomerName" placeholder="Digite o nome completo">
+        </div>
+        <div class="modal-buttons">
+          <button id="btnSalvarCliente" class="primary-btn">Salvar</button>
+          <button id="btnCancelarFidelizacao" class="secondary-btn">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

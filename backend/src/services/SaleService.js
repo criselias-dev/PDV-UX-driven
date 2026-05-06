@@ -3,6 +3,7 @@ import ProductRepository from "../repositories/ProductRepository.js";
 import OperatorRepository from "../repositories/OperatorRepository.js";
 import PromotionService from "./PromotionService.js";
 import CustomerService from "./CustomerService.js";
+import FidelityService from "./FidelityService.js";
 
 class SaleService {
   async startSale(customerCPF = null) {
@@ -40,7 +41,7 @@ class SaleService {
     if (cpfToUse) {
       try {
         customer = await CustomerService.getByCPF(cpfToUse);
-        discount = await PromotionService.calculateLoyaltyDiscount(subtotal, customer.isFidelizado);
+        discount = await PromotionService.calculateLoyaltyDiscount(subtotal, customer.tier);
       } catch (err) {
         console.warn("Customer not found for discount calculation:", err.message);
       }
@@ -126,6 +127,23 @@ class SaleService {
 
     const items = await SaleRepository.findItemsBySaleId(saleId);
     if (!items || items.length === 0) throw new Error("Não é possível fechar uma venda sem itens");
+
+    // Calcular total da venda antes de fechar
+    const subtotal = items.reduce(
+      (sum, item) => sum + (Number(item.price) * Number(item.quantity)),
+      0
+    );
+
+    // Se há cliente associado, adicionar pontos de fidelização
+    if (sale.customer_cpf) {
+      try {
+        await FidelityService.addPurchasePoints(sale.customer_cpf, saleId, subtotal);
+        console.log(`Pontos adicionados para cliente ${sale.customer_cpf} na venda ${saleId}`);
+      } catch (fidelityErr) {
+        console.warn("Erro ao adicionar pontos de fidelização:", fidelityErr.message);
+        // Não falha a venda por erro na fidelização
+      }
+    }
 
     await SaleRepository.updateStatus(saleId, "CLOSED");
     return await this.getSale(saleId, sale.customer_cpf);

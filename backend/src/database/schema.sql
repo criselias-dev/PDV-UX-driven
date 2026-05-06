@@ -40,7 +40,24 @@ CREATE TABLE IF NOT EXISTS customers (
   cpf TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   points INTEGER NOT NULL DEFAULT 0,
-  fidelity_status TEXT NOT NULL DEFAULT 'basic'
+  fidelity_status TEXT NOT NULL DEFAULT 'basic',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ===============================
+-- FIDELITY HISTORY
+-- Histórico de pontos ganhos/perdidos
+-- ===============================
+CREATE TABLE IF NOT EXISTS fidelity_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_cpf TEXT NOT NULL,
+  sale_id TEXT,
+  points INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_cpf) REFERENCES customers(cpf),
+  FOREIGN KEY (sale_id) REFERENCES sales(id)
 );
 
 -- ===============================

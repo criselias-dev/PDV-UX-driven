@@ -1,4 +1,5 @@
 import PromotionRepository from "../repositories/PromotionRepository.js";
+import FidelityService from "./FidelityService.js";
 
 class PromotionService {
   async getAll() {
@@ -24,30 +25,19 @@ class PromotionService {
     return promotions.map(promo => this.formatPromotion(promo));
   }
 
-  async getLoyaltyPromotion() {
-    const promotion = await PromotionRepository.findLoyaltyPromotion();
-    if (!promotion) {
-      return null;
-    }
-    return this.formatPromotion(promotion);
-  }
-
-  async calculateLoyaltyDiscount(subtotal, isFidelizado) {
-    if (!isFidelizado) {
+  async calculateLoyaltyDiscount(subtotal, customerTier) {
+    if (!customerTier || customerTier === 'basic') {
       return 0;
     }
 
-    const loyaltyPromo = await this.getLoyaltyPromotion();
-    if (!loyaltyPromo) {
-      return 0;
+    // Usar desconto baseado no tier do cliente
+    const discountPercentage = FidelityService.getDiscountByTier(customerTier);
+
+    if (discountPercentage > 0) {
+      return (subtotal * discountPercentage) / 100;
     }
 
-    // For percentage discounts
-    if (loyaltyPromo.discount_type === 'percentage') {
-      return (subtotal * loyaltyPromo.discount) / 100;
-    }
-
-    return loyaltyPromo.discount;
+    return 0;
   }
 
   async calculateItemDiscount(productId, productPrice) {
