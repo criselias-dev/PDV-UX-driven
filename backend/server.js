@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { initDatabase } from './src/database/init.js';
 
@@ -17,6 +20,32 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// ==============================
+// VERSÃO DO PDV
+// ==============================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..');
+
+let versionData = {
+  version: '2026.1.0',
+  lastUpdated: new Date().toISOString()
+};
+
+try {
+  const versionPath = path.join(projectRoot, 'version.json');
+  if (fs.existsSync(versionPath)) {
+    const rawData = fs.readFileSync(versionPath, 'utf-8');
+    versionData = JSON.parse(rawData);
+  }
+} catch (err) {
+  console.warn('Erro ao ler version.json:', err.message);
+}
+
+app.get('/api/version', (req, res) => {
+  res.json(versionData);
+});
 
 // Inicializa SQLite antes de subir a API
 await initDatabase();

@@ -158,3 +158,14 @@ export async function printSale(saleId) {
     body: JSON.stringify({ saleId })
   });
 }
+
+// ======================================================
+// VERSÃO
+// ======================================================
+
+export async function getVersion() {
+  return request("/version", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+}

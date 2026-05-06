@@ -36,6 +36,20 @@ const cpfInput = document.getElementById("cpfInput");
 const clientName = document.getElementById("clientName");
 const fidelidadeStatus = document.getElementById("fidelidadeStatus");
 
+// Modal de Fidelização
+const fidelizacaoModal = document.getElementById("fidelizacaoModal");
+const modalStep1 = document.getElementById("modalStep1");
+const modalStep2 = document.getElementById("modalStep2");
+const btnFidelizarSim = document.getElementById("btnFidelizarSim");
+const btnFidelizarNao = document.getElementById("btnFidelizarNao");
+const btnSalvarCliente = document.getElementById("btnSalvarCliente");
+const btnCancelarFidelizacao = document.getElementById("btnCancelarFidelizacao");
+const modalClose = document.querySelector(".modal-close");
+const newCustomerCpf = document.getElementById("newCustomerCpf");
+const newCustomerName = document.getElementById("newCustomerName");
+
+const versionLabel = document.querySelector(".version-label");
+
 // -------------------------------
 // INICIALIZAÇÃO INICIAL
 // -------------------------------
@@ -46,6 +60,7 @@ cpfInput.disabled = true;
 // -------------------------------
 let currentSale = null;
 let ignoreCpfBlur = false;
+let lastSearchedCpf = null; // Armazenar CPF para o modal de fidelização
 
 function resetCustomerInfo() {
   clientName.textContent = "—";
@@ -101,6 +116,9 @@ function setSaleOpen(isOpen, hasItems = false) {
 }
 
 function initUI() {
+  // Carregar versão do backend
+  loadVersion();
+  
   // Tenta restaurar venda anterior
   const savedSale = loadSaleFromStorage();
   
@@ -135,6 +153,20 @@ function initUI() {
     resetCustomerInfo();
     setSaleOpen(false, false);
     saveSaleToStorage(null);
+  }
+}
+
+// Carregar versão do backend
+async function loadVersion() {
+  try {
+    const versionInfo = await API.getVersion();
+    if (versionInfo && versionInfo.version) {
+      versionLabel.textContent = versionInfo.version;
+      console.log("Versão do PDV:", versionInfo.version);
+    }
+  } catch (err) {
+    console.warn("Erro ao carregar versão:", err);
+    // Mantém versão padrão se houver erro
   }
 }
 
@@ -348,7 +380,94 @@ async function handleCpfLookup(cpf) {
       }
     }
   } catch (err) {
+    // CPF não encontrado - mostrar modal de fidelização
+    lastSearchedCpf = cpf;
+    newCustomerCpf.value = cpf;
+    newCustomerName.value = "";
+    showModalStep(1);
     resetCustomerInfo();
+  }
+}
+
+// ======================================================
+// FUNÇÕES DO MODAL DE FIDELIZAÇÃO
+// ======================================================
+
+function showModalStep(step) {
+  fidelizacaoModal.classList.add("show");
+  if (step === 1) {
+    modalStep1.classList.remove("hidden");
+    modalStep2.classList.add("hidden");
+  } else if (step === 2) {
+    modalStep1.classList.add("hidden");
+    modalStep2.classList.remove("hidden");
+  }
+}
+
+function hideModal() {
+  fidelizacaoModal.classList.remove("show");
+  lastSearchedCpf = null;
+}
+
+async function handleFidelizarSim() {
+  // Mostrar formulário de cadastro (step 2)
+  showModalStep(2);
+  newCustomerName.focus();
+}
+
+function handleFidelizarNao() {
+  // Continuar a venda sem fidelizar
+  hideModal();
+  cpfInput.value = "";
+  cpfInput.focus();
+}
+
+async function handleSalvarCliente() {
+  const name = newCustomerName.value.trim();
+  const cpf = lastSearchedCpf;
+
+  if (!name) {
+    alert("Por favor, digite o nome do cliente");
+    return;
+  }
+
+  if (!cpf) {
+    alert("CPF inválido");
+    return;
+  }
+
+  try {
+    // Criar novo cliente
+    const newCustomer = await API.createCustomer({
+      cpf: cpf,
+      name: name,
+      points: 0,
+      fidelity_status: 'basic'
+    });
+
+    console.log("Novo cliente criado:", newCustomer);
+
+    // Associar o cliente à venda
+    if (currentSale) {
+      currentSale = await API.setCustomer(currentSale.id, cpf);
+      saveSaleToStorage(currentSale);
+      updateSaleUI(currentSale);
+    }
+
+    // Exibir dados do cliente
+    clientName.textContent = newCustomer.name;
+    fidelidadeStatus.textContent = `Tier: BASIC (0% desconto) - 0 pontos`;
+    fidelidadeStatus.className = "fidelidade-nao";
+
+    // Fechar modal
+    hideModal();
+    cpfInput.value = cpf;
+    cpfInput.focus();
+
+    console.log("Cliente fidelizado e associado à venda!");
+  } catch (err) {
+    alert("Erro ao cadastrar cliente: " + err.message);
+    console.error("Erro ao criar cliente:", err);
   }
 }
 
@@ -449,6 +568,41 @@ function clearSaleUI() {
 // INICIALIZAÇÃO
 // -------------------------------
 initUI();
+
+// ======================================================
+// EVENT LISTENERS DO MODAL DE FIDELIZAÇÃO
+// ======================================================
+
+// Botão "Não" - fechar modal e continuar
+btnFidelizarNao.addEventListener("click", handleFidelizarNao);
+
+// Botão "Sim" - mostrar formulário de cadastro
+btnFidelizarSim.addEventListener("click", handleFidelizarSim);
+
+// Botão "Salvar" - cadastrar novo cliente
+btnSalvarCliente.addEventListener("click", handleSalvarCliente);
+
+// Botão "Cancelar" - voltar para step 1
+btnCancelarFidelizacao.addEventListener("click", () => {
+  showModalStep(1);
+});
+
+// Fechar modal (X)
+modalClose.addEventListener("click", hideModal);
+
+// Fechar ao clicar fora do modal
+fidelizacaoModal.addEventListener("click", (e) => {
+  if (e.target === fidelizacaoModal) {
+    hideModal();
+  }
+});
+
+// Permitir Enter para salvar cliente
+newCustomerName.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    handleSalvarCliente();
+  }
+});
 
 // -------------------------------
 // LOG
