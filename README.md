@@ -130,13 +130,16 @@ pdv-ux-driven/
 
 cd backend
 npm install
+npm start
 node server.js
 
 ### Frontend
 
 Abrir:
 
-app/ui/index.html
+cd app/ui
+npx live-server --port=5500
+
 
 ---
 

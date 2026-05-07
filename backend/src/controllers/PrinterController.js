@@ -133,6 +133,41 @@ class PrinterController {
       res.status(500).json({ message: err.message || "Erro ao imprimir cupom" });
     }
   }
+
+  async getPDFs(req, res) {
+    try {
+      const pdfs = await printerService.getPDFs();
+      res.json(pdfs);
+    } catch (err) {
+      console.error("Erro PrinterController getPDFs:", err.message || err);
+      res.status(500).json({ message: err.message || "Erro ao listar PDFs" });
+    }
+  }
+
+  async getPDF(req, res) {
+    const { year, month, filename } = req.params;
+
+    try {
+      const pdfPath = await printerService.getPDFPath(year, month, filename);
+
+      // Verificar se arquivo existe
+      const fs = await import('fs');
+      if (!fs.existsSync(pdfPath)) {
+        return res.status(404).json({ message: "PDF não encontrado" });
+      }
+
+      // Enviar arquivo PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+
+      const stream = fs.createReadStream(pdfPath);
+      stream.pipe(res);
+
+    } catch (err) {
+      console.error("Erro PrinterController getPDF:", err.message || err);
+      res.status(500).json({ message: err.message || "Erro ao acessar PDF" });
+    }
+  }
 }
 
 export default new PrinterController();

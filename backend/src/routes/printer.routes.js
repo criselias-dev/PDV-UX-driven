@@ -27,7 +27,22 @@ router.patch("/:id/status", (req, res) => PrinterController.updateStatus(req, re
 // POST print receipt
 router.post("/receipt/print", (req, res) => PrinterController.printReceipt(req, res));
 
+// POST print sale (with PDF generation)
+router.post("/print/:saleId", (req, res) => PrinterController.printSale(req, res));
+
+// GET list all PDFs
+router.get("/pdfs", (req, res) => PrinterController.getPDFs(req, res));
+
+// GET specific PDF file
+router.get("/pdfs/:year/:month/:filename", (req, res) => PrinterController.getPDF(req, res));
+
 // POST print (legacy)
 router.post("/print", (req, res) => PrinterController.print(req, res));
+
+// GET list PDFs
+router.get("/pdfs", (req, res) => PrinterController.getPDFs(req, res));
+
+// GET specific PDF
+router.get("/pdfs/:year/:month/:filename", (req, res) => PrinterController.getPDF(req, res));
 
 export default router;

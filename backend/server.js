@@ -50,6 +50,10 @@ app.get('/api/version', (req, res) => {
 // Inicializa SQLite antes de subir a API
 await initDatabase();
 
+// Servir arquivos estáticos (PDFs dos cupons)
+const receiptsDir = path.join(projectRoot, 'receipts');
+app.use('/receipts', express.static(receiptsDir));
+
 app.use('/api/sales', saleRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/customers', customerRoutes);

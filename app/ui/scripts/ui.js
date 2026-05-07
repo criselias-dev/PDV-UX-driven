@@ -106,6 +106,11 @@ function setStatusError(msg) {
   statusLabel.textContent = msg || "Erro";
 }
 
+function setStatusSuccess(msg) {
+  statusIndicator.className = "status-indicator status-success";
+  statusLabel.textContent = msg || "Sucesso";
+}
+
 function setSaleOpen(isOpen, hasItems = false) {
   btnStart.disabled = isOpen;
   btnFinish.disabled = !isOpen || !hasItems;
@@ -212,18 +217,15 @@ btnFinish.addEventListener("click", async () => {
     await API.closeSale(currentSale.id);
 
     try {
-      await API.printSale(currentSale.id);
+      const printResult = await API.printSale(currentSale.id);
+      if (printResult && printResult.pdfUrl) {
+        setStatusSuccess(`Venda finalizada! <a href="${printResult.pdfUrl}" target="_blank" style="color: #007bff;">Ver PDF do cupom</a>`);
+      } else {
+        setStatusSuccess("Venda finalizada!");
+      }
     } catch (printErr) {
       console.warn("Venda fechada, mas erro na impressão:", printErr);
-      currentSale = null;
-      saveSaleToStorage(null);
-      saleIdLabel.textContent = "—";
-      productInput.value = "";
-      clearSaleUI();
-      setStatusIdle();
-      setSaleOpen(false);
-      setStatusError("Venda finalizada, erro na impressão");
-      return;
+      setStatusSuccess("Venda finalizada (impressão falhou)");
     }
 
     currentSale = null;
