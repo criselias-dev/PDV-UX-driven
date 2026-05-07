@@ -20,8 +20,7 @@
       </div>
 
       <div class="top-center">
-        <!-- GUIA: operador real virá do backend -->
-        <span class="operator-msg">Olá, sou o operador <strong>Copilot</strong></span>
+        <span id="operatorGreeting" class="operator-msg">Olá, sou —</span>
       </div>
 
       <div class="top-right">
@@ -196,6 +195,39 @@
         <div class="modal-buttons">
           <button id="btnSalvarCliente" class="primary-btn">Salvar</button>
           <button id="btnCancelarFidelizacao" class="secondary-btn">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE LOGIN DO OPERADOR -->
+  <div id="operatorModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Início de Turno</h3>
+      </div>
+
+      <div class="modal-step">
+        <p>Faça login do operador para iniciar o turno.</p>
+
+        <div class="form-group">
+          <label for="operatorUsername">Usuário</label>
+          <input type="text" id="operatorUsername" autocomplete="username" placeholder="Ex: caixa1">
+        </div>
+
+        <div class="form-group">
+          <label for="operatorPassword">Senha</label>
+          <input type="password" id="operatorPassword" autocomplete="current-password" placeholder="Digite a senha">
+        </div>
+
+        <p id="operatorLoginError" class="operator-login-error"></p>
+
+        <div class="operator-login-hint">
+          Operadores disponíveis: caixa1 / caixa2 / caixa3
+        </div>
+
+        <div class="modal-buttons">
+          <button id="btnOperatorLogin" class="primary-btn">Iniciar Turno</button>
         </div>
       </div>
     </div>

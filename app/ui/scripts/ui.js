@@ -50,6 +50,12 @@ const newCustomerCpf = document.getElementById("newCustomerCpf");
 const newCustomerName = document.getElementById("newCustomerName");
 
 const versionLabel = document.querySelector(".version-label");
+const operatorGreeting = document.getElementById("operatorGreeting");
+const operatorModal = document.getElementById("operatorModal");
+const operatorUsername = document.getElementById("operatorUsername");
+const operatorPassword = document.getElementById("operatorPassword");
+const operatorLoginError = document.getElementById("operatorLoginError");
+const btnOperatorLogin = document.getElementById("btnOperatorLogin");
 
 // -------------------------------
 // INICIALIZAÇÃO INICIAL
@@ -63,11 +69,71 @@ hideReceiptLink();
 let currentSale = null;
 let ignoreCpfBlur = false;
 let lastSearchedCpf = null; // Armazenar CPF para o modal de fidelização
+let currentOperator = null;
 
 function resetCustomerInfo() {
   clientName.textContent = "—";
   fidelidadeStatus.textContent = "Cliente Não Fidelizado";
   fidelidadeStatus.className = "fidelidade-nao";
+}
+
+function setOperatorGreeting(name = "—") {
+  if (!operatorGreeting) return;
+  operatorGreeting.textContent = `Olá, sou ${name}`;
+}
+
+function showOperatorModal() {
+  if (!operatorModal) return;
+  operatorModal.classList.add("show");
+  operatorLoginError.style.display = "none";
+  operatorLoginError.textContent = "";
+  operatorUsername.focus();
+}
+
+function hideOperatorModal() {
+  if (!operatorModal) return;
+  operatorModal.classList.remove("show");
+}
+
+async function handleOperatorLogin() {
+  const username = operatorUsername.value.trim();
+  const password = operatorPassword.value.trim();
+
+  if (!username || !password) {
+    operatorLoginError.textContent = "Informe usuário e senha.";
+    operatorLoginError.style.display = "block";
+    return;
+  }
+
+  btnOperatorLogin.disabled = true;
+  operatorLoginError.style.display = "none";
+  operatorLoginError.textContent = "";
+
+  try {
+    const operator = await API.operatorLogin(username, password);
+    currentOperator = operator;
+    setOperatorGreeting(operator.name);
+    hideOperatorModal();
+    operatorPassword.value = "";
+
+    const hasItems = Array.isArray(currentSale?.items) && currentSale.items.length > 0;
+    setSaleOpen(Boolean(currentSale), hasItems);
+
+    if (currentSale) {
+      productInput.focus();
+    } else {
+      btnStart.focus();
+    }
+  } catch (err) {
+    currentOperator = null;
+    operatorPassword.value = "";
+    operatorLoginError.textContent = err.message || "Falha no login";
+    operatorLoginError.style.display = "block";
+    setSaleOpen(Boolean(currentSale), Array.isArray(currentSale?.items) && currentSale.items.length > 0);
+    operatorPassword.focus();
+  } finally {
+    btnOperatorLogin.disabled = false;
+  }
 }
 
 // Salvar sale no localStorage
@@ -131,21 +197,27 @@ function hideReceiptLink() {
 }
 
 function setSaleOpen(isOpen, hasItems = false) {
-  btnStart.disabled = isOpen;
-  btnFinish.disabled = !isOpen || !hasItems;
-  productInput.disabled = !isOpen;
-  cpfInput.disabled = !isOpen;
-  btnCancelLast.disabled = !isOpen || !hasItems;
-  btnRepeatLast.disabled = !isOpen || !hasItems;
+  const hasOperator = Boolean(currentOperator);
+  btnStart.disabled = !hasOperator || isOpen;
+  btnFinish.disabled = !hasOperator || !isOpen || !hasItems;
+  productInput.disabled = !hasOperator || !isOpen;
+  cpfInput.disabled = !hasOperator || !isOpen;
+  btnCancelLast.disabled = !hasOperator || !isOpen || !hasItems;
+  btnRepeatLast.disabled = !hasOperator || !isOpen || !hasItems;
 }
 
 function initUI() {
   // Carregar versão do backend
   loadVersion();
-  
+
+  // Estado inicial de operador: sem turno iniciado
+  currentOperator = null;
+  setOperatorGreeting("—");
+  showOperatorModal();
+
   // Tenta restaurar venda anterior
   const savedSale = loadSaleFromStorage();
-  
+
   if (savedSale && savedSale.status === 'OPEN') {
     // Se uma venda estava aberta, restaura
     currentSale = savedSale;
@@ -165,8 +237,6 @@ function initUI() {
         ? "fidelidade-sim" 
         : "fidelidade-nao";
     }
-    
-    productInput.focus();
     console.log("Venda restaurada do armazenamento local:", currentSale);
   } else {
     // Caso contrário, inicia novo
@@ -200,6 +270,13 @@ async function loadVersion() {
 btnStart.addEventListener("click", async (e) => {
   e.preventDefault();
   e.stopPropagation();
+
+  if (!currentOperator) {
+    showOperatorModal();
+    setStatusError("Inicie o turno do operador");
+    return;
+  }
+
   try {
     // 1️⃣ iniciar venda no backend
     currentSale = await API.startSale();
@@ -628,6 +705,27 @@ newCustomerName.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     handleSalvarCliente();
   }
+});
+
+// Login de operador antes do início do turno
+btnOperatorLogin.addEventListener("click", handleOperatorLogin);
+
+operatorUsername.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+
+  if (!operatorPassword.value.trim()) {
+    operatorPassword.focus();
+    return;
+  }
+
+  handleOperatorLogin();
+});
+
+operatorPassword.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  handleOperatorLogin();
 });
 
 // -------------------------------

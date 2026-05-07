@@ -149,15 +149,19 @@ export async function initDatabase() {
   // ===============================
   // SEED OPERATORS
   // ===============================
-  const operatorCount = await db.get('SELECT COUNT(*) as count FROM operators');
+  const defaultOperators = [
+    { username: 'caixa1', password: '1234', name: 'Mariana' },
+    { username: 'caixa2', password: '2345', name: 'Joao' },
+    { username: 'caixa3', password: '3456', name: 'Patricia' }
+  ];
 
-  if (operatorCount.count === 0) {
+  for (const operator of defaultOperators) {
     await db.run(
-      `INSERT INTO operators (username, password, name) VALUES (?, ?, ?)`,
-      ['admin', '1234', 'Administrador']
+      `INSERT OR IGNORE INTO operators (username, password, name) VALUES (?, ?, ?)`,
+      [operator.username, operator.password, operator.name]
     );
-    console.log('Operadores iniciais inseridos');
   }
+  console.log('Operadores padrao garantidos (caixa1, caixa2, caixa3)');
 
   // ===============================
   // SEED PROMOTIONS - Sistema de Fidelização (descontos por tier)
