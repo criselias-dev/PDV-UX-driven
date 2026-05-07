@@ -58,10 +58,6 @@ export async function initDatabase() {
     );
     await db.run(
       `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
-      ['00000000000', 'Cliente Removido', 1200, 'gold', '2023-12-01T10:00:00Z', '2024-03-15T09:20:00Z']
-    );
-    await db.run(
-      `INSERT INTO customers (cpf, name, points, fidelity_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
       ['55555555555', 'Ana Costa', 2500, 'platinum', '2023-10-01T10:00:00Z', '2024-03-20T11:15:00Z']
     );
     console.log('Clientes com sistema de fidelização inseridos');
@@ -113,20 +109,6 @@ export async function initDatabase() {
     await db.run(
       `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
       ['33333333333', 0, 'Upgrade para tier silver', '2024-01-06T10:00:00Z']
-    );
-
-    // Histórico para Cliente Removido (gold)
-    await db.run(
-      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
-      ['00000000000', 'sale_008', 500, 'Compra realizada - R$ 500.00', '2023-12-02T10:00:00Z']
-    );
-    await db.run(
-      `INSERT INTO fidelity_history (customer_cpf, sale_id, points, reason, created_at) VALUES (?, ?, ?, ?, ?)`,
-      ['00000000000', 'sale_009', 700, 'Compra realizada - R$ 700.00', '2024-03-15T09:20:00Z']
-    );
-    await db.run(
-      `INSERT INTO fidelity_history (customer_cpf, points, reason, created_at) VALUES (?, ?, ?, ?)`,
-      ['00000000000', 0, 'Upgrade para tier gold', '2023-12-02T10:00:00Z']
     );
 
     // Histórico para Ana Costa (platinum)

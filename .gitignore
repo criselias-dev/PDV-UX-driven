@@ -55,6 +55,9 @@ Thumbs.db
 backend/src/database/*.sqlite
 .env.*.local
 
+# Runtime receipts/artifacts (can contain customer data)
+backend/receipts/
+
 # Misc
 *.tgz
 *.zip
