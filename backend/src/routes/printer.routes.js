@@ -3,6 +3,12 @@ import PrinterController from "../controllers/PrinterController.js";
 
 const router = Router();
 
+// GET list all PDFs
+router.get("/pdfs", (req, res) => PrinterController.getPDFs(req, res));
+
+// GET specific PDF file
+router.get("/pdfs/:year/:month/:filename", (req, res) => PrinterController.getPDF(req, res));
+
 // GET all printers
 router.get("/", (req, res) => PrinterController.getAll(req, res));
 
@@ -30,19 +36,7 @@ router.post("/receipt/print", (req, res) => PrinterController.printReceipt(req, 
 // POST print sale (with PDF generation)
 router.post("/print/:saleId", (req, res) => PrinterController.printSale(req, res));
 
-// GET list all PDFs
-router.get("/pdfs", (req, res) => PrinterController.getPDFs(req, res));
-
-// GET specific PDF file
-router.get("/pdfs/:year/:month/:filename", (req, res) => PrinterController.getPDF(req, res));
-
-// POST print (legacy)
+// POST print (legacy body-based endpoint)
 router.post("/print", (req, res) => PrinterController.print(req, res));
-
-// GET list PDFs
-router.get("/pdfs", (req, res) => PrinterController.getPDFs(req, res));
-
-// GET specific PDF
-router.get("/pdfs/:year/:month/:filename", (req, res) => PrinterController.getPDF(req, res));
 
 export default router;

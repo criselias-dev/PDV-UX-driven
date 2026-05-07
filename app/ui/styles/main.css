@@ -103,6 +103,16 @@ h1 {
   box-shadow: 0 0 10px var(--accent-green);
 }
 
+.status-pdf-link {
+  margin-top: 8px;
+}
+
+.status-pdf-link a {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
 .status-text {
   font-size: 18px;
   color: var(--text-soft);

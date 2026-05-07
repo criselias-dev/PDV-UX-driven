@@ -134,6 +134,22 @@ class PrinterController {
     }
   }
 
+  async printSale(req, res) {
+    const { saleId } = req.params;
+
+    if (!saleId) {
+      return res.status(400).json({ message: "SaleId nao informado" });
+    }
+
+    try {
+      const result = await printerService.print(saleId);
+      res.json(result);
+    } catch (err) {
+      console.error("Erro PrinterController printSale:", err.message || err);
+      res.status(500).json({ message: err.message || "Erro ao imprimir cupom" });
+    }
+  }
+
   async getPDFs(req, res) {
     try {
       const pdfs = await printerService.getPDFs();

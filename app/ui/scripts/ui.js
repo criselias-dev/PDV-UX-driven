@@ -31,6 +31,7 @@ const itemsCount = document.getElementById("itemsCount");
 const productDescription = document.getElementById("productDescription");
 const statusIndicator = document.getElementById("statusIndicator");
 const statusLabel = document.getElementById("statusLabel");
+const pdfLinkContainer = document.getElementById("pdfLinkContainer");
 
 const cpfInput = document.getElementById("cpfInput");
 const clientName = document.getElementById("clientName");
@@ -54,6 +55,7 @@ const versionLabel = document.querySelector(".version-label");
 // INICIALIZAÇÃO INICIAL
 // -------------------------------
 cpfInput.disabled = true;
+hideReceiptLink();
 
 // -------------------------------
 // VARIÁVEL DE ESTADO & PERSISTÊNCIA
@@ -94,21 +96,38 @@ function loadSaleFromStorage() {
 function setStatusIdle() {
   statusIndicator.className = "status-indicator status-idle";
   statusLabel.textContent = "Sem venda ativa";
+  hideReceiptLink();
 }
 
 function setStatusActive() {
   statusIndicator.className = "status-indicator status-active";
   statusLabel.textContent = "Venda em andamento";
+  hideReceiptLink();
 }
 
 function setStatusError(msg) {
   statusIndicator.className = "status-indicator status-error";
   statusLabel.textContent = msg || "Erro";
+  hideReceiptLink();
 }
 
 function setStatusSuccess(msg) {
   statusIndicator.className = "status-indicator status-success";
   statusLabel.textContent = msg || "Sucesso";
+}
+
+function showReceiptLink(url) {
+  if (!pdfLinkContainer || !url) return;
+
+  const backendOrigin = API.API_BASE.replace(/\/api$/, '');
+  const fullUrl = url.startsWith('http') ? url : `${backendOrigin}${url}`;
+
+  pdfLinkContainer.innerHTML = `<a href="${fullUrl}" target="_blank" rel="noopener">Ver PDF do cupom</a>`;
+}
+
+function hideReceiptLink() {
+  if (!pdfLinkContainer) return;
+  pdfLinkContainer.innerHTML = "";
 }
 
 function setSaleOpen(isOpen, hasItems = false) {
@@ -218,14 +237,16 @@ btnFinish.addEventListener("click", async () => {
 
     try {
       const printResult = await API.printSale(currentSale.id);
+      setStatusSuccess("Venda finalizada!");
       if (printResult && printResult.pdfUrl) {
-        setStatusSuccess(`Venda finalizada! <a href="${printResult.pdfUrl}" target="_blank" style="color: #007bff;">Ver PDF do cupom</a>`);
+        showReceiptLink(printResult.pdfUrl);
       } else {
-        setStatusSuccess("Venda finalizada!");
+        hideReceiptLink();
       }
     } catch (printErr) {
       console.warn("Venda fechada, mas erro na impressão:", printErr);
       setStatusSuccess("Venda finalizada (impressão falhou)");
+      hideReceiptLink();
     }
 
     currentSale = null;
@@ -241,6 +262,9 @@ btnFinish.addEventListener("click", async () => {
     setStatusError(err.message || "Erro ao finalizar");
   }
 });
+
+// Esconder botão de PDF na inicialização
+hideReceiptLink();
 
 // -------------------------------
 // PREENCHER DESCRIÇÃO AO DIGITAR CÓDIGO
