@@ -132,9 +132,9 @@ export async function initDatabase() {
   // SEED OPERATORS
   // ===============================
   const defaultOperators = [
-    { username: 'caixa1', password: '1234', name: 'Mariana' },
-    { username: 'caixa2', password: '2345', name: 'Joao' },
-    { username: 'caixa3', password: '3456', name: 'Patricia' }
+    { username: 'caixa1', password: '1234', name: 'Siddharta' },
+    { username: 'caixa2', password: '2345', name: 'Demian' },
+    { username: 'caixa3', password: '3456', name: 'Sinclair' }
   ];
 
   for (const operator of defaultOperators) {

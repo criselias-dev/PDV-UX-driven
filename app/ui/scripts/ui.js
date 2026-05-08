@@ -79,7 +79,7 @@ function resetCustomerInfo() {
 
 function setOperatorGreeting(name = "—") {
   if (!operatorGreeting) return;
-  operatorGreeting.textContent = `Olá, sou ${name}`;
+  operatorGreeting.textContent = `Olá, sou o operador ${name}`;
 }
 
 function showOperatorModal() {

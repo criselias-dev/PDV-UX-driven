@@ -164,6 +164,38 @@ class PrinterService {
     }
   }
 
+  groupReceiptItems(items = []) {
+    if (!Array.isArray(items) || items.length === 0) {
+      return [];
+    }
+
+    const grouped = {};
+
+    items.forEach((item) => {
+      const productId = item.product_id || item.productId || item.id || '';
+      const productName = item.product_name || item.productName || 'Produto';
+      const price = Number(item.price) || 0;
+      const quantity = Number(item.quantity) || 0;
+      const key = productId ? String(productId) : `${productName}::${price}`;
+
+      if (!grouped[key]) {
+        grouped[key] = {
+          product_id: productId || null,
+          product_name: productName,
+          price: price,
+          quantity: 0
+        };
+      }
+
+      grouped[key].quantity += quantity;
+    });
+
+    return Object.values(grouped).map((item) => ({
+      ...item,
+      subtotal: item.price * item.quantity
+    }));
+  }
+
   async generateAndSavePDF(receiptData) {
     const { saleId } = receiptData;
     const now = new Date();
@@ -220,12 +252,11 @@ class PrinterService {
     doc.fontSize(8).font('Helvetica-Bold').text('ITEMS:');
     doc.moveDown(0.3);
 
-    if (receiptData.items && receiptData.items.length > 0) {
-      receiptData.items.forEach(item => {
-        const itemTotal = item.price * item.quantity;
+    const groupedItems = this.groupReceiptItems(receiptData.items);
+    if (groupedItems.length > 0) {
+      groupedItems.forEach((item) => {
         doc.fontSize(8).font('Helvetica');
-        doc.text(`${item.product_name || item.productName}`);
-        doc.text(`  ${item.quantity}x R$ ${item.price.toFixed(2)} = R$ ${itemTotal.toFixed(2)}`);
+        doc.text(`${item.product_name} - Qtd: ${item.quantity} - R$ ${item.subtotal.toFixed(2)}`);
         doc.moveDown(0.2);
       });
     }
@@ -379,11 +410,10 @@ class PrinterService {
     receipt += "ITEMS:\n";
     receipt += "----------------------------------------\n";
 
-    if (items && items.length > 0) {
-      items.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        receipt += `${item.product_name || item.productName || 'Produto'}\n`;
-        receipt += `  ${item.quantity}x R$ ${item.price.toFixed(2)} = R$ ${itemTotal.toFixed(2)}\n`;
+    const groupedItems = this.groupReceiptItems(items);
+    if (groupedItems.length > 0) {
+      groupedItems.forEach((item) => {
+        receipt += `${item.product_name} - Qtd: ${item.quantity} - R$ ${item.subtotal.toFixed(2)}\n`;
       });
     }
 
