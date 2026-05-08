@@ -70,13 +70,16 @@ Em evolução:
 * Modelagem de domínio (Product, Sale, Customer, etc.)
 * Interface frontend funcional
 * Comunicação frontend ↔ backend
-
-### ⚙️ Em Desenvolvimento
-
 * Finalização da venda
 * Motor de promoções
 * Regras de fidelidade de cliente
 * Validações avançadas de fluxo
+
+### ⚙️ Em Desenvolvimento
+
+* Integração com API's externas
+* Integração com periféricos
+
 
 ---
 
@@ -92,35 +95,86 @@ Em evolução:
 ## 🧱 Estrutura do Projeto
 
 pdv-ux-driven/
-
 ├── app/
-│   ├── ui/
-│   │   ├── index.html
-│   │   ├── scripts/
-│   │   └── styles/
-│   │
-│   ├── application/
-│   │   ├── SaleService.js
-│   │   ├── ProductService.js
-│   │   ├── CustomerService.js
-│   │   ├── OperatorService.js
-│   │   ├── DiscountService.js
-│   │   └── PrinterService.js
-│   │
-│   └── backend/
-│       └── api.js
+│   └── ui/
+│       ├── api.js
+│       ├── index.html
+│       ├── scripts/
+│       │   └── ui.js
+│       └── styles/
+│           └── main.css
 │
-└── backend/
-├── src/
-│   ├── routes/
-│   ├── controllers/
-│   ├── services/
-│   ├── repositories/
-│   ├── domain/
-│   └── infrastructure/
+├── backend/
+│   ├── api.js
+│   ├── getStock.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── pdv.sqlite
+│   ├── server.js
+│   │
+│   ├── receipts/
+│   │   ├── print_*.txt
+│   │   └── pdfs/
+│   │       └── 2026/
+│   │           └── 05/
+│   │               └── SALE_*.pdf
+│   │
+│   ├── scripts/
+│   │   └── version-bump.js
+│   │
+│   └── src/
+│       ├── controllers/
+│       │   ├── CustomerController.js
+│       │   ├── OperatorController.js
+│       │   ├── PrinterController.js
+│       │   ├── ProductController.js
+│       │   ├── PromotionController.js
+│       │   └── SaleController.js
+│       │
+│       ├── database/
+│       │   ├── connection.js
+│       │   ├── init.js
+│       │   └── schema.sql
+│       │
+│       ├── domain/
+│       │   ├── Customer.js
+│       │   ├── Operator.js
+│       │   ├── Printer.js
+│       │   ├── Product.js
+│       │   ├── Promotion.js
+│       │   └── Sale.js
+│       │
+│       ├── repositories/
+│       │   ├── CustomerRepository.js
+│       │   ├── FidelityHistoryRepository.js
+│       │   ├── OperatorRepository.js
+│       │   ├── PrinterRepository.js
+│       │   ├── ProductRepository.js
+│       │   ├── PromotionRepository.js
+│       │   └── SaleRepository.js
+│       │
+│       ├── routes/
+│       │   ├── customer.routes.js
+│       │   ├── operator.routes.js
+│       │   ├── printer.routes.js
+│       │   ├── product.routes.js
+│       │   ├── promotion.routes.js
+│       │   └── sale.routes.js
+│       │
+│       └── services/
+│           ├── CustomerService.js
+│           ├── FidelityHistoryRepository.js
+│           ├── FidelityService.js
+│           ├── OperatorService.js
+│           ├── PrinterService.js
+│           ├── ProductService.js
+│           ├── PromotionService.js
+│           └── SaleService.js
 │
-├── server.js
-└── package.json
+├── README.md
+├── VERSIONING.md
+├── estrutura.txt
+└── version.json
 
 ---
 
